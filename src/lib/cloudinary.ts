@@ -12,17 +12,29 @@ const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
+/**
+ * The dashboard also shows a combined URL:
+ *   CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
+ * Either format works — the three separate vars take precedence.
+ */
+const cloudinaryUrl = process.env.CLOUDINARY_URL;
+
 export function isCloudinaryConfigured(): boolean {
-  return Boolean(cloudName && apiKey && apiSecret);
+  return Boolean(
+    (cloudName && apiKey && apiSecret) ||
+      (cloudinaryUrl && !cloudinaryUrl.includes("<your_api_key>")),
+  );
 }
 
-if (isCloudinaryConfigured()) {
+if (cloudName && apiKey && apiSecret) {
   cloudinary.config({
     cloud_name: cloudName,
     api_key: apiKey,
     api_secret: apiSecret,
     secure: true,
   });
+} else if (isCloudinaryConfigured()) {
+  cloudinary.config(); // reads CLOUDINARY_URL from the environment
 }
 
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024; // 4 MB
