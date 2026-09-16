@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { siteConfig } from "@/lib/data";
 import { getSiteSettings } from "@/lib/settings";
+import { getProfile } from "@/lib/content";
 
 import "./globals.css";
 
@@ -18,15 +19,18 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const [settings, profile] = await Promise.all([getSiteSettings(), getProfile()]);
+  const title = settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`;
+  const description = settings.metaDescription || siteConfig.tagline;
+  const socialImage = profile.imageUrl ?? undefined;
 
   return {
     metadataBase: new URL(siteConfig.url),
     title: {
-      default: settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`,
+      default: title,
       template: `%s — ${siteConfig.name}`,
     },
-    description: settings.metaDescription || siteConfig.tagline,
+    description,
     keywords: settings.seoKeywords.length
       ? settings.seoKeywords
       : [
@@ -44,14 +48,16 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "en_US",
       url: "/",
-      title: settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`,
-      description: settings.metaDescription || siteConfig.tagline,
+      title,
+      description,
       siteName: siteConfig.name,
+      images: socialImage ? [socialImage] : undefined,
     },
     twitter: {
-      card: "summary_large_image",
-      title: settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`,
-      description: settings.metaDescription || siteConfig.tagline,
+      card: socialImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: socialImage ? [socialImage] : undefined,
     },
   };
 }

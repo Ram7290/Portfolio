@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,17 @@ export function AboutSection({ profile }: { profile: Profile }) {
         </Reveal>
 
         <Reveal delay={0.1}>
+          {profile.imageUrl ? (
+            <div className="relative mx-auto mb-5 size-24 overflow-hidden rounded-full border border-border/60 bg-card shadow-lg shadow-primary/10 lg:size-28">
+              <Image
+                src={profile.imageUrl}
+                alt={`${profile.name} — profile photo`}
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-3">
             {profile.stats.map((stat) => (
               <Card

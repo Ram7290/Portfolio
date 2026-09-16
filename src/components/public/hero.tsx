@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Download, Mail } from "lucide-react";
@@ -62,6 +63,29 @@ export function Hero({
         {...item(0)}
         className="relative mx-auto flex max-w-3xl flex-col items-center text-center"
       >
+        {/* Profile picture */}
+        {profile.imageUrl ? (
+          <motion.div
+            {...item(0)}
+            className="relative mb-7 size-28 sm:size-32"
+          >
+            <div
+              aria-hidden="true"
+              className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary via-primary/30 to-transparent opacity-70 blur-[1px]"
+            />
+            <div className="relative size-full overflow-hidden rounded-full border border-border/60 bg-card shadow-2xl shadow-primary/10">
+              <Image
+                src={profile.imageUrl}
+                alt={`${profile.name} — profile photo`}
+                fill
+                priority
+                sizes="128px"
+                className="object-cover"
+              />
+            </div>
+          </motion.div>
+        ) : null}
+
         {profile.available ? (
           <Link
             href="/contact"
