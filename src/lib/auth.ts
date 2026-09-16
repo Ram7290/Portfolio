@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // Dev-only fallback so the app runs before AUTH_SECRET is configured;
   // production builds still require a real AUTH_SECRET.
   secret:
-    process.env.AUTH_SECRET ||
+    process.env.AUTH_SECRET?.trim() ||
     (process.env.NODE_ENV !== "production"
       ? "dev-only-insecure-secret-do-not-use-in-production"
       : undefined),

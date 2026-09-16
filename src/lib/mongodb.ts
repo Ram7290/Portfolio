@@ -14,7 +14,10 @@ import mongoose from "mongoose";
  *    fallback content until the cooldown expires.
  */
 
-const MONGODB_URI = process.env.MONGODB_URI;
+// Trimmed: pasting env values into hosting dashboards often adds stray
+// whitespace/newlines, which silently breaks the connection string.
+const MONGODB_URI = process.env.MONGODB_URI?.trim();
+const MONGODB_DB = process.env.MONGODB_DB?.trim();
 
 /** How long the driver waits to find a usable server before giving up. */
 const SERVER_SELECTION_TIMEOUT_MS = 8_000;
@@ -145,7 +148,7 @@ export async function connectToDatabase() {
   if (!cache.connecting) {
     cache.connecting = (async () => {
       const options = {
-        dbName: process.env.MONGODB_DB ?? "portfolio",
+        dbName: MONGODB_DB || "portfolio",
         bufferCommands: false,
         serverSelectionTimeoutMS: SERVER_SELECTION_TIMEOUT_MS,
       } as const;

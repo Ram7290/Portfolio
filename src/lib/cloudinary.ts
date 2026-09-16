@@ -8,9 +8,9 @@ import { v2 as cloudinary } from "cloudinary";
  * in @/actions/uploads; MongoDB stores only the resulting URL.
  */
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
 
 /**
  * The dashboard also shows a combined URL:
