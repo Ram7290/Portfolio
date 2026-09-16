@@ -1,0 +1,402 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - navigation "Main navigation" [ref=e4]:
+      - link "Ramduth Rajesh — home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e6]: RR
+        - generic [ref=e7]: Ramduth Rajesh
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "Home" [ref=e10] [cursor=pointer]:
+            - /url: /#home
+        - listitem [ref=e11]:
+          - link "About" [ref=e12] [cursor=pointer]:
+            - /url: /about
+        - listitem [ref=e13]:
+          - link "Skills" [ref=e14] [cursor=pointer]:
+            - /url: /#skills
+        - listitem [ref=e15]:
+          - link "Experience" [ref=e16] [cursor=pointer]:
+            - /url: /#experience
+        - listitem [ref=e17]:
+          - link "Projects" [ref=e18] [cursor=pointer]:
+            - /url: /projects
+        - listitem [ref=e19]:
+          - link "Services" [ref=e20] [cursor=pointer]:
+            - /url: /#services
+        - listitem [ref=e21]:
+          - link "Contact" [ref=e22] [cursor=pointer]:
+            - /url: /contact
+      - generic [ref=e23]:
+        - button "Toggle theme" [ref=e24]
+        - link "Resume" [ref=e25] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e26]:
+    - region "Introduction" [ref=e27]:
+      - generic [ref=e28]:
+        - link [ref=e29] [cursor=pointer]:
+          - /url: /contact
+        - heading "Ramduth Rajesh" [level=1] [ref=e35]:
+          - generic [ref=e36]: Ramduth
+          - generic [ref=e38]: Rajesh
+        - paragraph [ref=e40]: // Full Stack Developer
+        - paragraph [ref=e41]: Building modern, scalable and user-focused web applications with clean architecture and powerful technologies.
+        - generic [ref=e42]:
+          - link "View My Work" [ref=e43] [cursor=pointer]:
+            - /url: /projects
+          - link "Contact Me" [ref=e44] [cursor=pointer]:
+            - /url: /contact
+        - list "Social links" [ref=e45]:
+          - listitem [ref=e46]:
+            - link "GitHub profile" [ref=e47] [cursor=pointer]:
+              - /url: https://github.com/ramduth-rajesh
+          - listitem [ref=e50]:
+            - link "LinkedIn profile" [ref=e51] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/ramduth-rajesh
+          - listitem [ref=e54]:
+            - link "Send an email" [ref=e55] [cursor=pointer]:
+              - /url: mailto:ramduth.rajesh@example.com
+    - generic [ref=e62]:
+      - region "About" [ref=e63]:
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - paragraph [ref=e66]: About
+            - heading "A developer who cares about the whole stack" [level=2] [ref=e67]
+            - generic [ref=e68]:
+              - paragraph [ref=e69]: I'm Ramduth Rajesh, a Full Stack Developer who enjoys turning complex problems into clean, maintainable software. I care about the details — from database schema design to the last pixel of a UI.
+              - paragraph [ref=e70]: "My focus is the modern JavaScript ecosystem: React and Next.js on the frontend, Node.js and REST APIs on the backend, with MongoDB and SQL databases underneath. I value clear architecture, typed code, and shipping things that actually work."
+              - paragraph [ref=e71]: Beyond writing code, I'm interested in developer experience, performance, and building products that feel effortless to use.
+            - paragraph [ref=e72]: Available Worldwide (Remote)
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - generic [ref=e79]:
+                - paragraph [ref=e80]: 2+
+                - paragraph [ref=e81]: Years of Experience
+              - generic [ref=e83]:
+                - paragraph [ref=e84]: 10+
+                - paragraph [ref=e85]: Projects Built
+              - generic [ref=e87]:
+                - paragraph [ref=e88]: 15+
+                - paragraph [ref=e89]: Technologies Used
+              - generic [ref=e91]:
+                - paragraph [ref=e92]: 100%
+                - paragraph [ref=e93]: Commitment to Quality
+            - generic [ref=e94]:
+              - generic [ref=e95]: Clean Architecture
+              - generic [ref=e96]: Type-Safe Code
+              - generic [ref=e97]: Performance
+              - generic [ref=e98]: DX
+      - region "Skills" [ref=e99]:
+        - generic [ref=e100]:
+          - paragraph [ref=e101]: Skills
+          - heading "Technologies I work with" [level=2] [ref=e102]
+          - paragraph [ref=e103]: A practical toolkit built across the stack — chosen for shipping real products, not résumé padding.
+        - generic [ref=e104]:
+          - generic [ref=e107]:
+            - generic [ref=e113]:
+              - heading "Frontend" [level=3] [ref=e114]
+              - paragraph [ref=e115]: Interfaces users enjoy
+            - list [ref=e116]:
+              - listitem [ref=e117]:
+                - generic "Advanced" [ref=e118]:
+                  - text: React
+                  - generic [ref=e119]: · Advanced
+              - listitem [ref=e120]:
+                - generic "Advanced" [ref=e121]:
+                  - text: Next.js
+                  - generic [ref=e122]: · Advanced
+              - listitem [ref=e123]:
+                - generic "Advanced" [ref=e124]:
+                  - text: TypeScript
+                  - generic [ref=e125]: · Advanced
+              - listitem [ref=e126]:
+                - generic "Advanced" [ref=e127]:
+                  - text: JavaScript
+                  - generic [ref=e128]: · Advanced
+              - listitem [ref=e129]:
+                - generic "Advanced" [ref=e130]:
+                  - text: HTML
+                  - generic [ref=e131]: · Advanced
+              - listitem [ref=e132]:
+                - generic "Advanced" [ref=e133]:
+                  - text: CSS
+                  - generic [ref=e134]: · Advanced
+              - listitem [ref=e135]:
+                - generic "Advanced" [ref=e136]:
+                  - text: Tailwind CSS
+                  - generic [ref=e137]: · Advanced
+              - listitem [ref=e138]:
+                - generic "Intermediate" [ref=e139]:
+                  - text: Material UI
+                  - generic [ref=e140]: · Intermediate
+          - generic [ref=e143]:
+            - generic [ref=e149]:
+              - heading "Backend" [level=3] [ref=e150]
+              - paragraph [ref=e151]: APIs & server logic
+            - list [ref=e152]:
+              - listitem [ref=e153]:
+                - generic "Advanced" [ref=e154]:
+                  - text: Node.js
+                  - generic [ref=e155]: · Advanced
+              - listitem [ref=e156]:
+                - generic "Advanced" [ref=e157]:
+                  - text: Express.js
+                  - generic [ref=e158]: · Advanced
+              - listitem [ref=e159]:
+                - generic "Intermediate" [ref=e160]:
+                  - text: PHP
+                  - generic [ref=e161]: · Intermediate
+              - listitem [ref=e162]:
+                - generic "Intermediate" [ref=e163]:
+                  - text: CodeIgniter
+                  - generic [ref=e164]: · Intermediate
+              - listitem [ref=e165]:
+                - generic "Advanced" [ref=e166]:
+                  - text: REST APIs
+                  - generic [ref=e167]: · Advanced
+          - generic [ref=e170]:
+            - generic [ref=e177]:
+              - heading "Databases" [level=3] [ref=e178]
+              - paragraph [ref=e179]: Data that scales with the app
+            - list [ref=e180]:
+              - listitem [ref=e181]:
+                - generic "Advanced" [ref=e182]:
+                  - text: MongoDB
+                  - generic [ref=e183]: · Advanced
+              - listitem [ref=e184]:
+                - generic "Intermediate" [ref=e185]:
+                  - text: PostgreSQL
+                  - generic [ref=e186]: · Intermediate
+              - listitem [ref=e187]:
+                - generic "Advanced" [ref=e188]:
+                  - text: MySQL
+                  - generic [ref=e189]: · Advanced
+          - generic [ref=e192]:
+            - generic [ref=e197]:
+              - heading "Tools" [level=3] [ref=e198]
+              - paragraph [ref=e199]: The daily workflow
+            - list [ref=e200]:
+              - listitem [ref=e201]:
+                - generic "Advanced" [ref=e202]:
+                  - text: Git
+                  - generic [ref=e203]: · Advanced
+              - listitem [ref=e204]:
+                - generic "Advanced" [ref=e205]:
+                  - text: GitHub
+                  - generic [ref=e206]: · Advanced
+              - listitem [ref=e207]:
+                - generic "Intermediate" [ref=e208]:
+                  - text: Bitbucket
+                  - generic [ref=e209]: · Intermediate
+              - listitem [ref=e210]:
+                - generic "Advanced" [ref=e211]:
+                  - text: VS Code
+                  - generic [ref=e212]: · Advanced
+              - listitem [ref=e213]:
+                - generic "Advanced" [ref=e214]:
+                  - text: Postman
+                  - generic [ref=e215]: · Advanced
+              - listitem [ref=e216]:
+                - generic "Intermediate" [ref=e217]:
+                  - text: Docker
+                  - generic [ref=e218]: · Intermediate
+      - region "Experience" [ref=e219]:
+        - generic [ref=e220]:
+          - paragraph [ref=e221]: Experience
+          - heading "Where I've worked" [level=2] [ref=e222]
+          - paragraph [ref=e223]: Roles and responsibilities — placeholder entries are marked and editable from the admin panel.
+        - list [ref=e224]:
+          - listitem [ref=e225]:
+            - generic [ref=e228]:
+              - generic [ref=e229]:
+                - heading "Placeholder Role — Full Stack Developer" [level=3] [ref=e230]
+                - paragraph [ref=e231]: Jan 2024 — Present
+              - paragraph [ref=e232]:
+                - text: Placeholder Company
+                - generic [ref=e233]: · Remote
+              - paragraph [ref=e234]: "[Placeholder] Add your real experience here from the Admin Panel → Experience."
+              - list [ref=e235]:
+                - listitem [ref=e236]: "[Placeholder] Describe what you own and build day to day."
+              - list [ref=e238]:
+                - listitem [ref=e239]:
+                  - generic [ref=e240]: Next.js
+                - listitem [ref=e241]:
+                  - generic [ref=e242]: TypeScript
+                - listitem [ref=e243]:
+                  - generic [ref=e244]: Node.js
+                - listitem [ref=e245]:
+                  - generic [ref=e246]: MongoDB
+      - region "Featured projects" [ref=e247]:
+        - generic [ref=e248]:
+          - generic [ref=e249]:
+            - paragraph [ref=e250]: Featured
+            - heading "Project highlights" [level=2] [ref=e251]
+          - link "All projects" [ref=e253] [cursor=pointer]:
+            - /url: /projects
+        - article [ref=e256]:
+          - 'link "Open project: Portfolio & Admin Platform" [ref=e257] [cursor=pointer]':
+            - /url: /projects/portfolio-admin-platform
+            - generic [ref=e258]: PO
+          - generic [ref=e260]:
+            - generic [ref=e261]: Full Stack
+            - heading [level=3] [ref=e262]:
+              - link "Portfolio & Admin Platform" [ref=e263] [cursor=pointer]:
+                - /url: /projects/portfolio-admin-platform
+            - paragraph [ref=e264]: This very site — a full stack portfolio with a MongoDB-backed admin panel.
+            - list [ref=e265]:
+              - listitem [ref=e266]:
+                - generic [ref=e267]: Next.js
+              - listitem [ref=e268]:
+                - generic [ref=e269]: TypeScript
+              - listitem [ref=e270]:
+                - generic [ref=e271]: Tailwind CSS
+              - listitem [ref=e272]:
+                - generic [ref=e273]: MongoDB
+              - listitem [ref=e274]:
+                - generic [ref=e275]: Mongoose
+              - listitem [ref=e276]:
+                - generic [ref=e277]: Auth.js
+            - generic [ref=e278]:
+              - link "Case study" [ref=e279] [cursor=pointer]:
+                - /url: /projects/portfolio-admin-platform
+              - link "GitHub" [ref=e280] [cursor=pointer]:
+                - /url: https://github.com/ramduth-rajesh
+      - region "Projects" [ref=e281]:
+        - generic [ref=e282]:
+          - paragraph [ref=e283]: Projects
+          - heading "Selected work" [level=2] [ref=e284]
+          - paragraph [ref=e285]: Things I've designed, built, and shipped — with the reasoning behind them.
+        - tablist "Filter projects by category" [ref=e287]:
+          - tab "All" [selected] [ref=e288]
+          - tab "Full Stack" [ref=e290]
+          - tab "Frontend" [ref=e291]
+          - tab "Backend" [ref=e292]
+          - tab "Other" [ref=e293]
+        - list [ref=e294]:
+          - listitem [ref=e295]:
+            - 'link "Open project: Portfolio & Admin Platform" [ref=e297] [cursor=pointer]':
+              - /url: /projects/portfolio-admin-platform
+              - generic [ref=e298]:
+                - generic [ref=e299]: PO
+                - generic [ref=e302]: Full Stack
+                - generic [ref=e303]: Featured
+              - generic [ref=e304]:
+                - heading "Portfolio & Admin Platform" [level=3] [ref=e305]
+                - paragraph [ref=e306]: This very site — a full stack portfolio with a MongoDB-backed admin panel.
+                - list [ref=e307]:
+                  - listitem [ref=e308]:
+                    - generic [ref=e309]: Next.js
+                  - listitem [ref=e310]:
+                    - generic [ref=e311]: TypeScript
+                  - listitem [ref=e312]:
+                    - generic [ref=e313]: Tailwind CSS
+                  - listitem [ref=e314]:
+                    - generic [ref=e315]: MongoDB
+                  - listitem [ref=e316]:
+                    - generic [ref=e317]: "+2"
+              - generic [ref=e318]:
+                - generic [ref=e319]: View details
+                - link "View on GitHub" [ref=e324]
+          - listitem [ref=e327]:
+            - 'link "Open project: REST API Task Manager" [ref=e329] [cursor=pointer]':
+              - /url: /projects/rest-api-task-manager
+              - generic [ref=e330]:
+                - generic [ref=e331]: RE
+                - generic [ref=e334]: Backend
+              - generic [ref=e335]:
+                - heading "REST API Task Manager" [level=3] [ref=e336]
+                - paragraph [ref=e337]: "[Placeholder] A task management API with auth, roles, and filtering."
+                - list [ref=e338]:
+                  - listitem [ref=e339]:
+                    - generic [ref=e340]: Node.js
+                  - listitem [ref=e341]:
+                    - generic [ref=e342]: Express.js
+                  - listitem [ref=e343]:
+                    - generic [ref=e344]: MongoDB
+                  - listitem [ref=e345]:
+                    - generic [ref=e346]: REST
+              - generic [ref=e347]:
+                - generic [ref=e348]: View details
+                - link "View on GitHub" [ref=e353]
+          - listitem [ref=e356]:
+            - 'link "Open project: Analytics Dashboard UI" [ref=e358] [cursor=pointer]':
+              - /url: /projects/analytics-dashboard-ui
+              - generic [ref=e359]:
+                - generic [ref=e360]: AN
+                - generic [ref=e363]: Frontend
+              - generic [ref=e364]:
+                - heading "Analytics Dashboard UI" [level=3] [ref=e365]
+                - paragraph [ref=e366]: "[Placeholder] A responsive analytics dashboard with charts and dark mode."
+                - list [ref=e367]:
+                  - listitem [ref=e368]:
+                    - generic [ref=e369]: React
+                  - listitem [ref=e370]:
+                    - generic [ref=e371]: TypeScript
+                  - listitem [ref=e372]:
+                    - generic [ref=e373]: Tailwind CSS
+                  - listitem [ref=e374]:
+                    - generic [ref=e375]: Recharts
+              - generic [ref=e376]: View details
+      - region "Services" [ref=e381]:
+        - generic [ref=e382]:
+          - paragraph [ref=e383]: Services
+          - heading "What I can help with" [level=2] [ref=e384]
+          - paragraph [ref=e385]: From a landing page to a full product — services scoped to real needs.
+        - generic [ref=e386]:
+          - generic [ref=e389]:
+            - heading "Full Stack Web Development" [level=3] [ref=e395]
+            - paragraph [ref=e396]: End-to-end web applications — from database schema to deployed UI — built on the modern JavaScript stack.
+          - generic [ref=e399]:
+            - heading "Frontend Development" [level=3] [ref=e407]
+            - paragraph [ref=e408]: Responsive, accessible, fast interfaces with React, Next.js, and Tailwind CSS.
+          - generic [ref=e411]:
+            - heading "Backend & API Development" [level=3] [ref=e416]
+            - paragraph [ref=e417]: Well-documented REST APIs and server-side logic with Node.js and Express.
+          - generic [ref=e420]:
+            - heading "Database Design" [level=3] [ref=e426]
+            - paragraph [ref=e427]: Practical MongoDB and SQL data models, tuned for the queries your app actually makes.
+          - generic [ref=e430]:
+            - heading "Web Application Development" [level=3] [ref=e437]
+            - paragraph [ref=e438]: "From idea to production: architecture, implementation, deployment, and iteration."
+          - generic [ref=e441]:
+            - heading "Website Maintenance" [level=3] [ref=e445]
+            - paragraph [ref=e446]: Dependency updates, performance passes, bug fixes, and content changes for existing sites.
+      - region "Education" [ref=e447]:
+        - generic [ref=e448]:
+          - paragraph [ref=e449]: Education
+          - heading "Academic background" [level=2] [ref=e450]
+          - paragraph [ref=e451]: Degrees and studies — placeholder entries are marked and editable from the admin panel.
+        - generic [ref=e460]:
+          - generic [ref=e461]:
+            - heading "[Placeholder] Your Degree" [level=3] [ref=e462]
+            - paragraph [ref=e463]: 2019 — 2023
+          - paragraph [ref=e464]: "[Placeholder] Institution"
+          - paragraph [ref=e465]: "[Placeholder] Add your education details from the Admin Panel → Education."
+      - region "Resume" [ref=e466]:
+        - generic [ref=e469]:
+          - heading "Want to know more about my experience?" [level=2] [ref=e470]
+          - paragraph [ref=e471]: Grab a copy of my résumé for a detailed breakdown of my skills, work, and education.
+          - link "Get in touch" [ref=e473] [cursor=pointer]:
+            - /url: /contact
+  - contentinfo [ref=e474]:
+    - generic [ref=e475]:
+      - generic [ref=e476]:
+        - generic [ref=e477]:
+          - link "Ramduth Rajesh" [ref=e478] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e479]: Full Stack Developer
+        - list "Social links" [ref=e480]:
+          - listitem [ref=e481]:
+            - link "GitHub profile" [ref=e482] [cursor=pointer]:
+              - /url: https://github.com/ramduth-rajesh
+          - listitem [ref=e485]:
+            - link "LinkedIn profile" [ref=e486] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/ramduth-rajesh
+          - listitem [ref=e489]:
+            - link "Send an email" [ref=e490] [cursor=pointer]:
+              - /url: mailto:ramduth.rajesh@example.com
+      - paragraph [ref=e494]: © 2026 Ramduth Rajesh. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e500] [cursor=pointer]

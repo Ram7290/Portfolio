@@ -1,0 +1,10 @@
+export { ProfileModel } from "./Profile";
+export { SkillModel } from "./Skill";
+export { ExperienceModel } from "./Experience";
+export { ProjectModel } from "./Project";
+export { ServiceModel } from "./Service";
+export { EducationModel } from "./Education";
+export { ContactMessageModel } from "./ContactMessage";
+export { SocialLinkModel } from "./SocialLink";
+export { SiteSettingsModel } from "./SiteSettings";
+export { AdminModel } from "./Admin";
