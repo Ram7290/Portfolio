@@ -26,7 +26,7 @@ export const placeholderProfile: Profile = {
   ],
   imageUrl: null,
   location: "Available Worldwide (Remote)",
-  email: "ramduth.rajesh@example.com",
+  email: "ramduthrajesh1@gmail.com",
   available: true,
   availabilityLabel: "Open to Opportunities",
   stats: [
@@ -232,5 +232,5 @@ export const placeholderEducation: Education[] = [
 export const placeholderSocialLinks: SocialLinkItem[] = [
   { platform: "GitHub", url: "https://github.com/ramduth-rajesh", order: 1, active: true },
   { platform: "LinkedIn", url: "https://www.linkedin.com/in/ramduth-rajesh", order: 2, active: true },
-  { platform: "Email", url: "mailto:ramduth.rajesh@example.com", order: 3, active: true },
+  { platform: "Email", url: "mailto:ramduthrajesh1@gmail.com", order: 3, active: true },
 ];

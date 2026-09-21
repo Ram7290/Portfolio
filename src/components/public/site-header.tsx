@@ -8,9 +8,9 @@ import { Download, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/public/theme-toggle";
-import { navItems, siteConfig } from "@/lib/data";
+import { navItems, siteConfig as fallbackSiteConfig, type SiteConfig } from "@/lib/data";
 
-export function SiteHeader() {
+export function SiteHeader({ config = fallbackSiteConfig }: { config?: SiteConfig }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -41,7 +41,7 @@ export function SiteHeader() {
     return pathname === href;
   };
 
-  const resumeHref = siteConfig.resumeUrl || "/resume";
+  const resumeHref = config.resumeUrl || "/resume";
 
   return (
     <header
@@ -58,12 +58,12 @@ export function SiteHeader() {
         <Link
           href="/"
           className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight"
-          aria-label={`${siteConfig.name} — home`}
+          aria-label={`${config.name} — home`}
         >
           <span className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-primary ring-1 ring-primary/25">
-            {siteConfig.initials}
+            {config.initials}
           </span>
-          <span className="hidden sm:inline">{siteConfig.name}</span>
+          <span className="hidden sm:inline">{config.name}</span>
         </Link>
 
         <ul className="hidden items-center gap-0.5 lg:flex">

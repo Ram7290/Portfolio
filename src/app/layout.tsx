@@ -2,9 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { Providers } from "@/components/providers";
-import { siteConfig } from "@/lib/data";
 import { getSiteSettings } from "@/lib/settings";
-import { getProfile } from "@/lib/content";
+import { getProfile, getSiteConfig } from "@/lib/content";
 
 import "./globals.css";
 
@@ -19,7 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [settings, profile] = await Promise.all([getSiteSettings(), getProfile()]);
+  const [settings, profile, siteConfig] = await Promise.all([
+    getSiteSettings(),
+    getProfile(),
+    getSiteConfig(),
+  ]);
   const title = settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`;
   const description = settings.metaDescription || siteConfig.tagline;
   const socialImage = profile.imageUrl ?? undefined;
@@ -34,8 +37,8 @@ export async function generateMetadata(): Promise<Metadata> {
     keywords: settings.seoKeywords.length
       ? settings.seoKeywords
       : [
-          "Ramduth Rajesh",
-          "Full Stack Developer",
+          siteConfig.name,
+          siteConfig.role,
           "Next.js",
           "TypeScript",
           "React",

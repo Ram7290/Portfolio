@@ -2,15 +2,17 @@ import type { Metadata } from "next";
 
 import { ProjectsSection } from "@/components/public/projects-section";
 import { SectionHeading } from "@/components/public/motion";
-import { getProjects } from "@/lib/content";
+import { getProjects, getSiteConfig } from "@/lib/content";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Projects",
-  description:
-    "Projects by Ramduth Rajesh — full stack applications, APIs, and interfaces.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    title: "Projects",
+    description: `Projects by ${config.name} — full stack applications, APIs, and interfaces.`,
+  };
+}
 
 export default async function ProjectsPage() {
   const projects = await getProjects();

@@ -57,7 +57,7 @@
               - /url: https://www.linkedin.com/in/ramduth-rajesh
           - listitem [ref=e54]:
             - link "Send an email" [ref=e55] [cursor=pointer]:
-              - /url: mailto:ramduth.rajesh@example.com
+              - /url: mailto:ramduthrajesh1@gmail.com
     - generic [ref=e62]:
       - region "About" [ref=e63]:
         - generic [ref=e64]:
@@ -396,7 +396,7 @@
               - /url: https://www.linkedin.com/in/ramduth-rajesh
           - listitem [ref=e489]:
             - link "Send an email" [ref=e490] [cursor=pointer]:
-              - /url: mailto:ramduth.rajesh@example.com
+              - /url: mailto:ramduthrajesh1@gmail.com
       - paragraph [ref=e494]: © 2026 Ramduth Rajesh. All rights reserved.
   - region "Notifications alt+T"
   - button "Open Next.js Dev Tools" [ref=e500] [cursor=pointer]

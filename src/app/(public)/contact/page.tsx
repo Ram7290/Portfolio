@@ -9,14 +9,17 @@ import {
   GitHubIcon,
   LinkedInIcon,
 } from "@/components/public/brand-icons";
-import { getProfile, getSocialLinks } from "@/lib/content";
+import { getProfile, getSiteConfig, getSocialLinks } from "@/lib/content";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Get in touch with Ramduth Rajesh for projects, roles, or questions.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    title: "Contact",
+    description: `Get in touch with ${config.name} for projects, roles, or questions.`,
+  };
+}
 
 export default async function ContactPage() {
   const [profile, socialLinks] = await Promise.all([

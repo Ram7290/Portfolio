@@ -9,16 +9,19 @@ import {
   getEducation,
   getExperience,
   getProfile,
+  getSiteConfig,
   getSkills,
 } from "@/lib/content";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "About Ramduth Rajesh — Full Stack Developer working with React, Next.js, Node.js, and MongoDB.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    title: "About",
+    description: `About ${config.name} — ${config.role} working with React, Next.js, Node.js, and MongoDB.`,
+  };
+}
 
 export default async function AboutPage() {
   const [profile, skills, experience, education] = await Promise.all([

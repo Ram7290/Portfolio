@@ -1,14 +1,51 @@
+import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Globe, Mail } from "lucide-react";
 
 import {
   GitHubIcon,
   LinkedInIcon,
+  XSocialIcon,
 } from "@/components/public/brand-icons";
-import { siteConfig } from "@/lib/data";
+import { siteConfig as fallbackSiteConfig, type SiteConfig } from "@/lib/data";
+import type { SocialLinkItem } from "@/types/portfolio";
 
-export function SiteFooter() {
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+
+const PLATFORM_ICONS: Record<string, IconComponent> = {
+  github: GitHubIcon,
+  linkedin: LinkedInIcon,
+  x: XSocialIcon,
+  twitter: XSocialIcon,
+  email: Mail,
+  mail: Mail,
+};
+
+export function SiteFooter({
+  config = fallbackSiteConfig,
+  socialLinks = [],
+}: {
+  config?: SiteConfig;
+  socialLinks?: SocialLinkItem[];
+}) {
   const year = new Date().getFullYear();
+
+  // Keep the mail icon even when the admin hasn't added an Email social link.
+  const links = socialLinks.some((l) => l.url.startsWith("mailto:"))
+    ? socialLinks
+    : [
+        ...socialLinks,
+        ...(config.email
+          ? [
+              {
+                platform: "Email",
+                url: `mailto:${config.email}`,
+                order: socialLinks.length + 1,
+                active: true,
+              },
+            ]
+          : []),
+      ];
 
   return (
     <footer className="border-t border-border/60">
@@ -19,48 +56,37 @@ export function SiteFooter() {
               href="/"
               className="font-semibold tracking-tight hover:text-primary transition-colors"
             >
-              {siteConfig.name}
+              {config.name}
             </Link>
-            <p className="text-sm text-muted-foreground">{siteConfig.role}</p>
+            <p className="text-sm text-muted-foreground">{config.role}</p>
           </div>
 
           <ul className="flex items-center gap-2" aria-label="Social links">
-            <li>
-              <a
-                href={siteConfig.social.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub profile"
-                className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <GitHubIcon className="size-4" />
-              </a>
-            </li>
-            <li>
-              <a
-                href={siteConfig.social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn profile"
-                className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <LinkedInIcon className="size-4" />
-              </a>
-            </li>
-            <li>
-              <a
-                href={`mailto:${siteConfig.email}`}
-                aria-label="Send an email"
-                className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <Mail className="size-4" />
-              </a>
-            </li>
+            {links.map((link) => {
+              const Icon = PLATFORM_ICONS[link.platform.toLowerCase()] ?? Globe;
+              const isMail = link.url.startsWith("mailto:");
+              return (
+                <li key={`${link.platform}-${link.url}`}>
+                  <a
+                    href={link.url}
+                    target={isMail ? undefined : "_blank"}
+                    rel={isMail ? undefined : "noopener noreferrer"}
+                    aria-label={
+                      isMail ? "Send an email" : `${link.platform} profile`
+                    }
+                    className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
         <p className="mt-10 text-center text-xs text-muted-foreground">
-          © {year} {siteConfig.name}. All rights reserved.
+          {config.footerText ||
+            `© ${year} ${config.name}. All rights reserved.`}
         </p>
       </div>
     </footer>

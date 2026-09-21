@@ -3,11 +3,15 @@ import type { Metadata } from "next";
 import { ResumeCta } from "@/components/public/resume-cta";
 import { SectionHeading } from "@/components/public/motion";
 import { getSiteSettings } from "@/lib/settings";
+import { getSiteConfig } from "@/lib/content";
 
-export const metadata: Metadata = {
-  title: "Resume",
-  description: "Download the résumé of Ramduth Rajesh, Full Stack Developer.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    title: "Resume",
+    description: `Download the résumé of ${config.name}, ${config.role}.`,
+  };
+}
 
 export const revalidate = 60;
 
