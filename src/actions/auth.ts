@@ -30,7 +30,8 @@ export async function loginAction(
     };
   }
 
-  if (!(await connectToDatabase())) {
+  // A sign-in click deserves a real connection attempt, not a cached failure.
+  if (!(await connectToDatabase({ bypassCooldown: true }))) {
     return {
       error:
         "Cannot reach the database. Check that MONGODB_URI is correct and that MongoDB Atlas → Network Access allows this server (0.0.0.0/0 for serverless hosts).",

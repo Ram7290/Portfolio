@@ -14,10 +14,20 @@ import mongoose from "mongoose";
  *    fallback content until the cooldown expires.
  */
 
-// Trimmed: pasting env values into hosting dashboards often adds stray
-// whitespace/newlines, which silently breaks the connection string.
-const MONGODB_URI = process.env.MONGODB_URI?.trim();
-const MONGODB_DB = process.env.MONGODB_DB?.trim();
+/**
+ * Sanitise env values: pasting into a hosting dashboard often carries stray
+ * whitespace/newlines, or the surrounding quotes from a .env file. A .env
+ * parser strips those quotes, a dashboard field does not — leaving a value
+ * that starts with `"` and fails as `MongoParseError: Invalid scheme`.
+ */
+function cleanEnv(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return trimmed;
+  return trimmed.replace(/^(['"])([\s\S]*)\1$/, "$2").trim();
+}
+
+const MONGODB_URI = cleanEnv(process.env.MONGODB_URI);
+const MONGODB_DB = cleanEnv(process.env.MONGODB_DB);
 
 /** How long the driver waits to find a usable server before giving up. */
 const SERVER_SELECTION_TIMEOUT_MS = 8_000;
@@ -137,13 +147,20 @@ async function buildNonSrvUri(uri: string): Promise<string | null> {
 /* Connection                                                          */
 /* ------------------------------------------------------------------ */
 
-export async function connectToDatabase() {
+export async function connectToDatabase(
+  { bypassCooldown = false }: { bypassCooldown?: boolean } = {},
+) {
   if (!MONGODB_URI) return null;
 
   if (cache.conn && cache.conn.connection.readyState === 1) return cache.conn;
 
-  // Recently failed? Don't hammer the database on every request.
-  if (Date.now() - cache.lastFailureAt < FAILURE_COOLDOWN_MS) return null;
+  // Recently failed? Don't hammer the database on every request. Callers
+  // acting on a deliberate user gesture (signing in) pass `bypassCooldown`
+  // so a click always gets a real attempt instead of a cached failure left
+  // behind by a background page render.
+  if (!bypassCooldown && Date.now() - cache.lastFailureAt < FAILURE_COOLDOWN_MS) {
+    return null;
+  }
 
   if (!cache.connecting) {
     cache.connecting = (async () => {
