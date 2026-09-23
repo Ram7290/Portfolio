@@ -42,6 +42,13 @@ export function SiteHeader({ config = fallbackSiteConfig }: { config?: SiteConfi
   };
 
   const resumeHref = config.resumeUrl || "/resume";
+  // A configured résumé URL points off-site (Drive, S3, …) — open it in a new
+  // tab so the visitor doesn't lose the portfolio. The /resume fallback is an
+  // internal route and stays in place.
+  const resumeIsExternal = /^https?:\/\//.test(resumeHref);
+  const resumeLinkProps = resumeIsExternal
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 
   return (
     <header
@@ -86,7 +93,7 @@ export function SiteHeader({ config = fallbackSiteConfig }: { config?: SiteConfi
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
           <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-            <Link href={resumeHref}>
+            <Link href={resumeHref} {...resumeLinkProps}>
               <Download data-icon="inline-start" />
               Resume
             </Link>
@@ -138,7 +145,11 @@ export function SiteHeader({ config = fallbackSiteConfig }: { config?: SiteConfi
               ))}
               <li className="pt-2 sm:hidden">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href={resumeHref} onClick={() => setOpen(false)}>
+                  <Link
+                    href={resumeHref}
+                    onClick={() => setOpen(false)}
+                    {...resumeLinkProps}
+                  >
                     <Download data-icon="inline-start" />
                     Resume
                   </Link>
