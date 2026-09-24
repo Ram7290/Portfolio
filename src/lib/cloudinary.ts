@@ -5,7 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 /**
  * Cloudinary is used ONLY for the profile picture and project
  * thumbnails (per project spec). Uploads go through the server action
- * in @/actions/uploads; MongoDB stores only the resulting URL.
+ * in the /api/upload route; MongoDB stores only the resulting URL.
  */
 
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();

@@ -1,23 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { MESSAGES_CHANGED_EVENT } from "@/components/admin/messages-manager";
+import { messagesApi } from "@/lib/api-client";
 import { AdminNavLinks } from "./admin-nav-links";
 
 export function AdminSidebar({
-  unreadCount,
   signOutButton,
 }: {
-  unreadCount: number;
   signOutButton: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const result = await messagesApi.unreadCount();
+      if (!cancelled && result.ok) setUnreadCount(result.data?.count ?? 0);
+    };
+    void load();
+    window.addEventListener(MESSAGES_CHANGED_EVENT, load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(MESSAGES_CHANGED_EVENT, load);
+    };
+  }, []);
 
   return (
     <>

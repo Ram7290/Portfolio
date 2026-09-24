@@ -64,44 +64,40 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      try {
-        const [skillsResult, experiencesResult, projectsResult, messagesResult] = await Promise.all([
-          skillsApi.getAll(),
-          experienceApi.getAll(),
-          projectsApi.getAll(),
-          messagesApi.getAll(),
-        ]);
+      const [skillsResult, experiencesResult, projectsResult, messagesResult] = await Promise.all([
+        skillsApi.list(),
+        experienceApi.list(),
+        projectsApi.list(),
+        messagesApi.list(),
+      ]);
 
-        if (skillsResult.ok && experiencesResult.ok && projectsResult.ok && messagesResult.ok) {
-          const skills = skillsResult.data;
-          const experiences = experiencesResult.data;
-          const projects = projectsResult.data;
-          const messages = messagesResult.data;
+      if (skillsResult.ok && experiencesResult.ok && projectsResult.ok && messagesResult.ok) {
+        const skills = skillsResult.data ?? [];
+        const experiences = experiencesResult.data ?? [];
+        const projects: RecentProject[] = projectsResult.data ?? [];
+        const messages: RecentMessage[] = messagesResult.data ?? [];
 
-          setStats({
-            projects: projects.length,
-            skills: skills.length,
-            experiences: experiences.length,
-            messages: messages.length,
-            unread: messages.filter(m => !m.read).length,
-          });
+        setStats({
+          projects: projects.length,
+          skills: skills.length,
+          experiences: experiences.length,
+          messages: messages.length,
+          unread: messages.filter((m) => !m.read).length,
+        });
 
-          // Recent messages (last 5)
-          setRecentMessages(messages.slice(0, 5));
+        // Recent messages (API returns newest first)
+        setRecentMessages(messages.slice(0, 5));
 
-          // Recent projects (first 5 by order)
-          setRecentProjects(projects.slice(0, 5).map(p => ({
-            id: p.id,
-            title: p.title,
-            featured: p.featured,
-          })));
-        }
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        // Recent projects (first 5 by order)
+        setRecentProjects(projects.slice(0, 5).map((p) => ({
+          id: p.id,
+          title: p.title,
+          featured: p.featured,
+        })));
+      } else {
         setDbConfigured(false);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchDashboardData();
