@@ -4,7 +4,6 @@ import {
   badRequest,
   parseRequestBody,
   requireAdmin,
-  revalidatePaths,
   serverError,
   success,
   toRows,

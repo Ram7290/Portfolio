@@ -226,7 +226,7 @@ export default async function ProjectDetailPage({
         <div className="mt-20">
           <h2 className="text-lg font-semibold tracking-tight">More projects</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
-            {others.map((p: any) => (
+            {others.map((p) => (
               <Link
                 key={p.slug}
                 href={`/projects/${p.slug}`}

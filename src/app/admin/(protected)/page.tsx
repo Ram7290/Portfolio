@@ -67,15 +67,15 @@ export default function AdminDashboardPage() {
       const [skillsResult, experiencesResult, projectsResult, messagesResult] = await Promise.all([
         skillsApi.list(),
         experienceApi.list(),
-        projectsApi.list(),
-        messagesApi.list(),
+        projectsApi.list<RecentProject>(),
+        messagesApi.list<RecentMessage>(),
       ]);
 
       if (skillsResult.ok && experiencesResult.ok && projectsResult.ok && messagesResult.ok) {
         const skills = skillsResult.data ?? [];
         const experiences = experiencesResult.data ?? [];
-        const projects: RecentProject[] = projectsResult.data ?? [];
-        const messages: RecentMessage[] = messagesResult.data ?? [];
+        const projects = projectsResult.data ?? [];
+        const messages = messagesResult.data ?? [];
 
         setStats({
           projects: projects.length,

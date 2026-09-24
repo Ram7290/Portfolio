@@ -83,7 +83,7 @@ export interface ProfileInput {
 }
 
 export const profileApi = {
-  get: async (): Promise<ApiResponse<any>> => {
+  get: async <T = unknown>(): Promise<ApiResponse<T>> => {
     return handleResponse(apiClient.get("/profile"));
   },
 
@@ -106,11 +106,11 @@ export interface SkillInput {
 }
 
 export const skillsApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/skills"));
   },
 
-  create: async (data: Omit<SkillInput, "id">): Promise<ApiResponse<any>> => {
+  create: async (data: Omit<SkillInput, "id">): Promise<ApiResponse<unknown>> => {
     return handleResponse(apiClient.post("/skills", data));
   },
 
@@ -151,11 +151,11 @@ export interface ExperienceInput {
 }
 
 export const experienceApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/experience"));
   },
 
-  create: async (data: Omit<ExperienceInput, "id">): Promise<ApiResponse<any>> => {
+  create: async (data: Omit<ExperienceInput, "id">): Promise<ApiResponse<unknown>> => {
     return handleResponse(apiClient.post("/experience", data));
   },
 
@@ -197,11 +197,11 @@ export interface ProjectInput {
 }
 
 export const projectsApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/projects"));
   },
 
-  create: async (data: Omit<ProjectInput, "id">): Promise<ApiResponse<any>> => {
+  create: async (data: Omit<ProjectInput, "id">): Promise<ApiResponse<unknown>> => {
     return handleResponse(apiClient.post("/projects", data));
   },
 
@@ -232,11 +232,11 @@ export interface ServiceInput {
 }
 
 export const servicesApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/services"));
   },
 
-  create: async (data: Omit<ServiceInput, "id">): Promise<ApiResponse<any>> => {
+  create: async (data: Omit<ServiceInput, "id">): Promise<ApiResponse<unknown>> => {
     return handleResponse(apiClient.post("/services", data));
   },
 
@@ -268,11 +268,11 @@ export interface EducationInput {
 }
 
 export const educationApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/education"));
   },
 
-  create: async (data: Omit<EducationInput, "id">): Promise<ApiResponse<any>> => {
+  create: async (data: Omit<EducationInput, "id">): Promise<ApiResponse<unknown>> => {
     return handleResponse(apiClient.post("/education", data));
   },
 
@@ -302,7 +302,7 @@ export interface ContactFormInput {
 }
 
 export const messagesApi = {
-  list: async (): Promise<ApiResponse<any[]>> => {
+  list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
     return handleResponse(apiClient.get("/messages"));
   },
 
@@ -355,11 +355,11 @@ export interface ResumeSettingsInput {
 export const settingsApi = {
   // Social Links
   socialLinks: {
-    list: async (): Promise<ApiResponse<any[]>> => {
+    list: async <T = unknown>(): Promise<ApiResponse<T[]>> => {
       return handleResponse(apiClient.get("/settings/social-links"));
     },
 
-    create: async (data: Omit<SocialLinkInput, "id">): Promise<ApiResponse<any>> => {
+    create: async (data: Omit<SocialLinkInput, "id">): Promise<ApiResponse<unknown>> => {
       return handleResponse(apiClient.post("/settings/social-links", data));
     },
 
@@ -378,7 +378,7 @@ export const settingsApi = {
 
   // Site Settings
   site: {
-    get: async (): Promise<ApiResponse<any>> => {
+    get: async <T = unknown>(): Promise<ApiResponse<T>> => {
       return handleResponse(apiClient.get("/settings/site"));
     },
 
