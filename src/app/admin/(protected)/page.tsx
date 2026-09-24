@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Briefcase,
@@ -17,59 +20,92 @@ import {
 } from "@/components/ui/card";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
-import { isDbConfigured } from "@/lib/mongodb";
-import {
-  ContactMessageModel,
-  ExperienceModel,
-  ProjectModel,
-  SkillModel,
-} from "@/models";
-import { withIds } from "@/lib/admin-utils";
+import { 
+  skillsApi, 
+  experienceApi, 
+  projectsApi, 
+  messagesApi 
+} from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+interface DashboardStats {
+  projects: number;
+  skills: number;
+  experiences: number;
+  messages: number;
+  unread: number;
+}
 
-export default async function AdminDashboardPage() {
-  const dbOk = isDbConfigured();
+interface RecentMessage {
+  id: string;
+  name: string;
+  subject: string;
+  read: boolean;
+  createdAt: string;
+}
 
-  let stats = { projects: 0, skills: 0, experiences: 0, messages: 0, unread: 0 };
-  let recentMessages: Array<{
-    id: string;
-    name: string;
-    subject: string;
-    read: boolean;
-    createdAt: Date;
-  }> = [];
-  let recentProjects: Array<{ id: string; title: string; featured: boolean }> = [];
+interface RecentProject {
+  id: string;
+  title: string;
+  featured: boolean;
+}
 
-  if (dbOk) {
-    try {
-      const [projects, skills, experiences, messages, unread, msgs, projs] =
-        await Promise.all([
-          ProjectModel.countDocuments(),
-          SkillModel.countDocuments(),
-          ExperienceModel.countDocuments(),
-          ContactMessageModel.countDocuments(),
-          ContactMessageModel.countDocuments({ read: false }),
-          ContactMessageModel.find().sort({ createdAt: -1 }).limit(5).lean(),
-          ProjectModel.find().sort({ order: 1 }).limit(5).lean(),
+export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({ 
+    projects: 0, 
+    skills: 0, 
+    experiences: 0, 
+    messages: 0, 
+    unread: 0 
+  });
+  const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [skillsResult, experiencesResult, projectsResult, messagesResult] = await Promise.all([
+          skillsApi.getAll(),
+          experienceApi.getAll(),
+          projectsApi.getAll(),
+          messagesApi.getAll(),
         ]);
-      stats = { projects, skills, experiences, messages, unread };
-      recentMessages = withIds(msgs).map((m) => ({
-        id: m.id,
-        name: m.name,
-        subject: m.subject,
-        read: m.read,
-        createdAt: m.createdAt,
-      }));
-      recentProjects = withIds(projs).map((p) => ({
-        id: p.id,
-        title: p.title,
-        featured: p.featured,
-      }));
-    } catch {
-      /* DB configured but unreachable — show zeros */
-    }
-  }
+
+        if (skillsResult.ok && experiencesResult.ok && projectsResult.ok && messagesResult.ok) {
+          const skills = skillsResult.data;
+          const experiences = experiencesResult.data;
+          const projects = projectsResult.data;
+          const messages = messagesResult.data;
+
+          setStats({
+            projects: projects.length,
+            skills: skills.length,
+            experiences: experiences.length,
+            messages: messages.length,
+            unread: messages.filter(m => !m.read).length,
+          });
+
+          // Recent messages (last 5)
+          setRecentMessages(messages.slice(0, 5));
+
+          // Recent projects (first 5 by order)
+          setRecentProjects(projects.slice(0, 5).map(p => ({
+            id: p.id,
+            title: p.title,
+            featured: p.featured,
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const statCards = [
     { label: "Projects", value: stats.projects, icon: FolderKanban, href: "/admin/projects" },
@@ -78,13 +114,27 @@ export default async function AdminDashboardPage() {
     { label: "Messages", value: stats.messages, icon: Inbox, href: "/admin/messages" },
   ];
 
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Dashboard"
+          description="Overview of your portfolio content."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading dashboard...</div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader
         title="Dashboard"
         description="Overview of your portfolio content."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statCards.map(({ label, value, icon: Icon, href }) => (

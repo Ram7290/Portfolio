@@ -1,16 +1,48 @@
-import { isDbConfigured, withDb } from "@/lib/mongodb";
-import { ProjectModel } from "@/models";
-import { serializeRows } from "@/lib/admin-utils";
+"use client";
+
+import { useEffect, useState } from "react";
 import type { ProjectRow } from "@/components/admin/projects-manager";
 import { ProjectsManager } from "@/components/admin/projects-manager";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
+import { projectsApi } from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+export default function AdminProjectsPage() {
+  const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
 
-export default async function AdminProjectsPage() {
-  const dbOk = isDbConfigured();
-  const docs = await withDb(() => ProjectModel.find().sort({ order: 1 }).lean());
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const result = await projectsApi.getAll();
+        if (result.ok) {
+          setProjects(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Projects"
+          description="Case studies shown on the projects page. Featured projects appear on the homepage."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -18,10 +50,10 @@ export default async function AdminProjectsPage() {
         title="Projects"
         description="Case studies shown on the projects page. Featured projects appear on the homepage."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
       <ProjectsManager
-        initial={docs ? serializeRows<ProjectRow>(docs) : []}
-        dbConfigured={dbOk}
+        initial={projects}
+        dbConfigured={dbConfigured}
       />
     </>
   );

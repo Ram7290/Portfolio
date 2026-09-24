@@ -1,4 +1,6 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
@@ -9,26 +11,59 @@ import {
   GitHubIcon,
   LinkedInIcon,
 } from "@/components/public/brand-icons";
-import { getProfile, getSiteConfig, getSocialLinks } from "@/lib/content";
+import { publicApi } from "@/lib/api-client";
 
-export const revalidate = 60;
-
-export async function generateMetadata(): Promise<Metadata> {
-  const config = await getSiteConfig();
-  return {
-    title: "Contact",
-    description: `Get in touch with ${config.name} for projects, roles, or questions.`,
-  };
+interface Profile {
+  email: string;
 }
 
-export default async function ContactPage() {
-  const [profile, socialLinks] = await Promise.all([
-    getProfile(),
-    getSocialLinks(),
-  ]);
+interface SocialLink {
+  platform: string;
+  url: string;
+}
 
-  const github = socialLinks.find((s) => s.platform === "GitHub")?.url;
-  const linkedin = socialLinks.find((s) => s.platform === "LinkedIn")?.url;
+export default function ContactPage() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [profileResult, siteConfigResult] = await Promise.all([
+          publicApi.getProfile(),
+          publicApi.getSiteConfig(),
+        ]);
+
+        if (profileResult.ok) {
+          setProfile(profileResult.data);
+        }
+
+        if (siteConfigResult.ok) {
+          setSocialLinks(siteConfigResult.data.socialLinks || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch contact data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const github = socialLinks.find((s) => s.platform.toLowerCase() === "github")?.url;
+  const linkedin = socialLinks.find((s) => s.platform.toLowerCase() === "linkedin")?.url;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
@@ -44,13 +79,15 @@ export default async function ContactPage() {
             <CardContent className="space-y-5 p-6">
               <div>
                 <h2 className="font-semibold">Direct</h2>
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="mt-2 flex items-center gap-2.5 text-sm text-primary hover:underline"
-                >
-                  <Mail className="size-4" aria-hidden="true" />
-                  {profile.email}
-                </a>
+                {profile?.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="mt-2 flex items-center gap-2.5 text-sm text-primary hover:underline"
+                  >
+                    <Mail className="size-4" aria-hidden="true" />
+                    {profile.email}
+                  </a>
+                )}
               </div>
               <div>
                 <h2 className="font-semibold">Elsewhere</h2>

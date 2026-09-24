@@ -1,17 +1,57 @@
-import { isDbConfigured, withDb } from "@/lib/mongodb";
-import { ContactMessageModel } from "@/models";
-import { withIds } from "@/lib/admin-utils";
+"use client";
+
+import { useEffect, useState } from "react";
 import { MessagesManager } from "@/components/admin/messages-manager";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
+import { messagesApi } from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+interface MessageRow {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
 
-export default async function AdminMessagesPage() {
-  const dbOk = isDbConfigured();
-  const docs = await withDb(() =>
-    ContactMessageModel.find().sort({ createdAt: -1 }).limit(200).lean(),
-  );
+export default function AdminMessagesPage() {
+  const [messages, setMessages] = useState<MessageRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const result = await messagesApi.getAll();
+        if (result.ok) {
+          setMessages(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch messages:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Messages"
+          description="Inbox for contact form submissions."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -19,22 +59,10 @@ export default async function AdminMessagesPage() {
         title="Messages"
         description="Inbox for contact form submissions."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
       <MessagesManager
-        initial={
-          docs
-            ? withIds(docs).map((m) => ({
-                id: m.id,
-                name: m.name,
-                email: m.email,
-                subject: m.subject,
-                message: m.message,
-                read: m.read,
-                createdAt: m.createdAt.toISOString(),
-              }))
-            : []
-        }
-        dbConfigured={dbOk}
+        initial={messages}
+        dbConfigured={dbConfigured}
       />
     </>
   );

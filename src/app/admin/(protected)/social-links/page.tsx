@@ -1,16 +1,48 @@
-import { isDbConfigured, withDb } from "@/lib/mongodb";
-import { SocialLinkModel } from "@/models";
-import { serializeRows } from "@/lib/admin-utils";
+"use client";
+
+import { useEffect, useState } from "react";
 import type { SocialLinkRow } from "@/components/admin/social-link-fields";
 import { SocialLinksManager } from "@/components/admin/social-links-manager";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
+import { settingsApi } from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+export default function AdminSocialLinksPage() {
+  const [socialLinks, setSocialLinks] = useState<SocialLinkRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
 
-export default async function AdminSocialLinksPage() {
-  const dbOk = isDbConfigured();
-  const docs = await withDb(() => SocialLinkModel.find().sort({ order: 1 }).lean());
+  useEffect(() => {
+    const fetchSocialLinks = async () => {
+      try {
+        const result = await settingsApi.getSocialLinks();
+        if (result.ok) {
+          setSocialLinks(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch social links:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSocialLinks();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Social Links"
+          description="GitHub, LinkedIn, email, and other professional profiles."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -18,10 +50,10 @@ export default async function AdminSocialLinksPage() {
         title="Social Links"
         description="GitHub, LinkedIn, email, and other professional profiles."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
       <SocialLinksManager
-        initial={docs ? serializeRows<SocialLinkRow>(docs) : []}
-        dbConfigured={dbOk}
+        initial={socialLinks}
+        dbConfigured={dbConfigured}
       />
     </>
   );

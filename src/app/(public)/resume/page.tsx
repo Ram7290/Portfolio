@@ -1,24 +1,40 @@
-import type { Metadata } from "next";
+"use client";
 
+import { useEffect, useState } from "react";
 import { ResumeCta } from "@/components/public/resume-cta";
 import { SectionHeading } from "@/components/public/motion";
-import { getSiteSettings } from "@/lib/settings";
-import { getSiteConfig } from "@/lib/content";
+import { publicApi } from "@/lib/api-client";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const config = await getSiteConfig();
-  return {
-    title: "Resume",
-    description: `Download the résumé of ${config.name}, ${config.role}.`,
-  };
-}
+export default function ResumePage() {
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [loading, setLoading] = useState(true);
 
-export const revalidate = 60;
+  useEffect(() => {
+    const fetchResumeSettings = async () => {
+      try {
+        const result = await publicApi.getSiteConfig();
+        if (result.ok) {
+          setResumeUrl(result.data.resumeUrl || "");
+        }
+      } catch (error) {
+        console.error('Failed to fetch resume settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-export default async function ResumePage() {
-  const settings = await getSiteSettings();
-  const resumeUrl =
-    settings.resumeEnabled && settings.resumeUrl ? settings.resumeUrl : "";
+    fetchResumeSettings();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">

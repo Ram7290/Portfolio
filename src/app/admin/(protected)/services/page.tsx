@@ -1,16 +1,48 @@
-import { isDbConfigured, withDb } from "@/lib/mongodb";
-import { ServiceModel } from "@/models";
-import { serializeRows } from "@/lib/admin-utils";
+"use client";
+
+import { useEffect, useState } from "react";
 import type { ServiceRow } from "@/components/admin/service-fields";
 import { ServicesManager } from "@/components/admin/services-manager";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
+import { servicesApi } from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+export default function AdminServicesPage() {
+  const [services, setServices] = useState<ServiceRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
 
-export default async function AdminServicesPage() {
-  const dbOk = isDbConfigured();
-  const docs = await withDb(() => ServiceModel.find().sort({ order: 1 }).lean());
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const result = await servicesApi.getAll();
+        if (result.ok) {
+          setServices(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Services"
+          description="Offerings shown in the services section."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -18,10 +50,10 @@ export default async function AdminServicesPage() {
         title="Services"
         description="Offerings shown in the services section."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
       <ServicesManager
-        initial={docs ? serializeRows<ServiceRow>(docs) : []}
-        dbConfigured={dbOk}
+        initial={services}
+        dbConfigured={dbConfigured}
       />
     </>
   );

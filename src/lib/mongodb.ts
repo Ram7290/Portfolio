@@ -30,9 +30,9 @@ const MONGODB_URI = cleanEnv(process.env.MONGODB_URI);
 const MONGODB_DB = cleanEnv(process.env.MONGODB_DB);
 
 /** How long the driver waits to find a usable server before giving up. */
-const SERVER_SELECTION_TIMEOUT_MS = 8_000;
+const SERVER_SELECTION_TIMEOUT_MS = 3_000; // Reduced from 8_000
 /** After a failed connect, skip new attempts for this long. */
-const FAILURE_COOLDOWN_MS = 20_000;
+const FAILURE_COOLDOWN_MS = 10_000; // Reduced from 20_000
 
 interface MongooseCache {
   conn: typeof mongoose | null;

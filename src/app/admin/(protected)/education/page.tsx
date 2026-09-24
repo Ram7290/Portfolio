@@ -1,16 +1,48 @@
-import { isDbConfigured, withDb } from "@/lib/mongodb";
-import { EducationModel } from "@/models";
-import { serializeRows } from "@/lib/admin-utils";
+"use client";
+
+import { useEffect, useState } from "react";
 import type { EducationRow } from "@/components/admin/education-fields";
 import { EducationManager } from "@/components/admin/education-manager";
 import { DbBanner } from "@/components/admin/db-banner";
 import { PageHeader } from "@/components/admin/page-header";
+import { educationApi } from "@/lib/api-client";
 
-export const dynamic = "force-dynamic";
+export default function AdminEducationPage() {
+  const [education, setEducation] = useState<EducationRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dbConfigured, setDbConfigured] = useState(true);
 
-export default async function AdminEducationPage() {
-  const dbOk = isDbConfigured();
-  const docs = await withDb(() => EducationModel.find().sort({ order: 1 }).lean());
+  useEffect(() => {
+    const fetchEducation = async () => {
+      try {
+        const result = await educationApi.getAll();
+        if (result.ok) {
+          setEducation(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch education:', error);
+        setDbConfigured(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEducation();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Education"
+          description="Degrees and studies shown on the site."
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-sm text-muted-foreground">Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -18,10 +50,10 @@ export default async function AdminEducationPage() {
         title="Education"
         description="Degrees and studies shown on the site."
       />
-      <DbBanner configured={dbOk} />
+      <DbBanner configured={dbConfigured} />
       <EducationManager
-        initial={docs ? serializeRows<EducationRow>(docs) : []}
-        dbConfigured={dbOk}
+        initial={education}
+        dbConfigured={dbConfigured}
       />
     </>
   );
