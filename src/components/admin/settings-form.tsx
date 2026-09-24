@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { saveSiteSettings } from "@/actions/settings";
+import { settingsApi } from "@/lib/api-client";
 
 interface SettingsValues {
   siteTitle: string;
@@ -28,19 +27,19 @@ interface SettingsValues {
 }
 
 export function SettingsForm({ initial }: { initial: SettingsValues }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [values, setValues] = useState(initial);
   const [error, setError] = useState<string | null>(null);
 
   const set = (key: keyof SettingsValues, value: string) =>
     setValues((v) => ({ ...v, [key]: value }));
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    startTransition(async () => {
-      const result = await saveSiteSettings({
+    setPending(true);
+    try {
+      const result = await settingsApi.site.save({
         siteTitle: values.siteTitle,
         metaDescription: values.metaDescription,
         heroHeading: values.heroHeading,
@@ -51,12 +50,14 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
       });
       if (result.ok) {
         toast.success("Settings saved.");
-        router.refresh();
       } else {
-        setError(result.error);
-        toast.error(result.error);
+        const message = result.error || "Save failed.";
+        setError(message);
+        toast.error(message);
       }
-    });
+    } finally {
+      setPending(false);
+    }
   }
 
   return (

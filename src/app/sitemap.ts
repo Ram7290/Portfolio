@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/lib/data";
-import { getProjects } from "@/lib/content";
+import { serverApi } from "@/lib/api-server";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await getProjects();
+  const projects = await serverApi.projects();
   const now = new Date();
 
   return [

@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,51 +27,50 @@ import {
   type SocialLinkDialogValues,
   type SocialLinkRow,
 } from "@/components/admin/social-link-fields";
-import {
-  deleteSocialLink,
-  reorderSocialLinks,
-  saveSocialLink,
-} from "@/actions/settings";
+import { settingsApi, type ApiResponse } from "@/lib/api-client";
 
 export function SocialLinksManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: SocialLinkRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<SocialLinkRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  function handleSave(values: SocialLinkDialogValues) {
-    startTransition(async () => {
-      const result = await saveSocialLink({
-        id: editing?.id,
-        ...values,
-        order: editing?.order ?? initial.length + 1,
-      });
-      if (result.ok) {
-        toast.success(editing ? "Link updated." : "Link added.");
-        setDialogOpen(false);
-        router.refresh();
-      } else {
-        toast.error(result.error);
+  async function run(request: Promise<ApiResponse<unknown>>, successMessage?: string) {
+    setPending(true);
+    try {
+      const result = await request;
+      if (!result.ok) {
+        toast.error(result.error || "Request failed.");
+        return false;
       }
-    });
+      if (successMessage) toast.success(successMessage);
+      await onChanged();
+      return true;
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleSave(values: SocialLinkDialogValues) {
+    const data = { ...values, order: editing?.order ?? initial.length + 1 };
+    const saved = await run(
+      editing
+        ? settingsApi.socialLinks.update(editing.id, { ...data, id: editing.id })
+        : settingsApi.socialLinks.create(data),
+      editing ? "Link updated." : "Link added.",
+    );
+    if (saved) setDialogOpen(false);
   }
 
   function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteSocialLink(id);
-      if (result.ok) {
-        toast.success("Link deleted.");
-        router.refresh();
-      } else {
-        toast.error(result.error);
-      }
-    });
+    void run(settingsApi.socialLinks.delete(id), "Link deleted.");
   }
 
   function move(index: number, direction: -1 | 1) {
@@ -80,11 +78,7 @@ export function SocialLinksManager({
     if (target < 0 || target >= initial.length) return;
     const ids = initial.map((s) => s.id);
     [ids[index], ids[target]] = [ids[target], ids[index]];
-    startTransition(async () => {
-      const result = await reorderSocialLinks(ids);
-      if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+    void run(settingsApi.socialLinks.reorder(ids));
   }
 
   return (

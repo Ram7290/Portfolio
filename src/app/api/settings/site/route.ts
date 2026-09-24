@@ -22,8 +22,10 @@ export interface SiteSettingsInput {
   seoKeywords: string[];
 }
 
-/** GET /api/settings/site — get site settings */
+/** GET /api/settings/site — get stored site settings for editing (admin only) */
 export async function GET() {
+  if (!(await requireAdmin())) return unauthorized();
+
   const doc = await withDb(() => SiteSettingsModel.findOne().lean());
   if (!doc) return success(null);
   return success(JSON.parse(JSON.stringify(doc)));

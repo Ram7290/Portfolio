@@ -1,15 +1,17 @@
-import axios, { type AxiosInstance, type AxiosError } from "axios";
+import axios, { type AxiosInstance } from "axios";
 import type { StatItem } from "@/types/portfolio";
 
 /**
- * Axios-based API client for all REST endpoints.
- * Replaces server actions with HTTP calls.
+ * Axios-based API client for browser-side (Client Component) calls.
+ * Server Components use `serverApi` from `@/lib/api-server` instead.
  */
 
 export interface ApiResponse<T = undefined> {
   ok: boolean;
   data?: T;
   error?: string;
+  /** HTTP status of a failed request (undefined for network errors). */
+  status?: number;
 }
 
 // Create axios instance with base configuration
@@ -22,19 +24,7 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Response interceptor to handle errors
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<ApiResponse>) => {
-    // Extract error message from response
-    if (error.response?.data?.error) {
-      return Promise.reject(new Error(error.response.data.error));
-    }
-    return Promise.reject(error);
-  },
-);
-
-// Helper to handle API responses
+// Helper to handle API responses: never throws, always resolves to ApiResponse
 async function handleResponse<T>(
   promise: Promise<{ data: ApiResponse<T> }>,
 ): Promise<ApiResponse<T>> {
@@ -42,6 +32,13 @@ async function handleResponse<T>(
     const { data } = await promise;
     return data;
   } catch (error) {
+    if (axios.isAxiosError<ApiResponse>(error)) {
+      return {
+        ok: false,
+        error: error.response?.data?.error ?? error.message,
+        status: error.response?.status,
+      };
+    }
     return {
       ok: false,
       error: error instanceof Error ? error.message : "An error occurred",
@@ -309,6 +306,10 @@ export const messagesApi = {
     return handleResponse(apiClient.get("/messages"));
   },
 
+  unreadCount: async (): Promise<ApiResponse<{ count: number }>> => {
+    return handleResponse(apiClient.get("/messages/unread-count"));
+  },
+
   submit: async (data: ContactFormInput): Promise<ApiResponse> => {
     return handleResponse(apiClient.post("/messages", data));
   },
@@ -346,6 +347,11 @@ export interface SiteSettingsInput {
   seoKeywords: string[];
 }
 
+export interface ResumeSettingsInput {
+  resumeUrl: string;
+  resumeEnabled: boolean;
+}
+
 export const settingsApi = {
   // Social Links
   socialLinks: {
@@ -380,6 +386,17 @@ export const settingsApi = {
       return handleResponse(apiClient.put("/settings/site", data));
     },
   },
+
+  // Resume (only the resume fields of site settings)
+  resume: {
+    get: async (): Promise<ApiResponse<ResumeSettingsInput>> => {
+      return handleResponse(apiClient.get("/settings/resume"));
+    },
+
+    save: async (data: ResumeSettingsInput): Promise<ApiResponse> => {
+      return handleResponse(apiClient.put("/settings/resume", data));
+    },
+  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -406,44 +423,6 @@ export const uploadApi = {
 
   remove: async (publicId: string): Promise<ApiResponse> => {
     return handleResponse(apiClient.delete("/upload", { data: { publicId } }));
-  },
-};
-
-/* ------------------------------------------------------------------ */
-/* Public API                                                          */
-/* ------------------------------------------------------------------ */
-
-export const publicApi = {
-  profile: async (): Promise<ApiResponse<any>> => {
-    return handleResponse(apiClient.get("/public/profile"));
-  },
-
-  projects: async (): Promise<ApiResponse<any[]>> => {
-    return handleResponse(apiClient.get("/public/projects"));
-  },
-
-  projectBySlug: async (slug: string): Promise<ApiResponse<any>> => {
-    return handleResponse(apiClient.get(`/public/projects/${slug}`));
-  },
-
-  skills: async (): Promise<ApiResponse<any[]>> => {
-    return handleResponse(apiClient.get("/public/skills"));
-  },
-
-  experience: async (): Promise<ApiResponse<any[]>> => {
-    return handleResponse(apiClient.get("/public/experience"));
-  },
-
-  services: async (): Promise<ApiResponse<any[]>> => {
-    return handleResponse(apiClient.get("/public/services"));
-  },
-
-  education: async (): Promise<ApiResponse<any[]>> => {
-    return handleResponse(apiClient.get("/public/education"));
-  },
-
-  siteConfig: async (): Promise<ApiResponse<any>> => {
-    return handleResponse(apiClient.get("/public/site-config"));
   },
 };
 

@@ -7,8 +7,10 @@ import {
   revalidatePaths,
   serverError,
   success,
+  toRows,
   unauthorized,
 } from "@/lib/api-utils";
+import type { ProjectCategory } from "@/types/portfolio";
 
 const CATEGORIES = ["Full Stack", "Frontend", "Backend", "Other"] as const;
 
@@ -41,13 +43,15 @@ export interface ProjectInput {
   order: number;
 }
 
-/** GET /api/projects — list all projects */
+/** GET /api/projects — list all projects (admin only) */
 export async function GET() {
+  if (!(await requireAdmin())) return unauthorized();
+
   const docs = await withDb(() =>
     ProjectModel.find().sort({ order: 1 }).lean(),
   );
   if (docs === null) return serverError("Database is not configured.");
-  return success(JSON.parse(JSON.stringify(docs)));
+  return success(toRows(docs));
 }
 
 /** POST /api/projects — create a project (admin only) */
@@ -84,7 +88,7 @@ export async function POST(request: Request) {
       challenges: body.challenges?.trim() || null,
       results: body.results?.trim() || null,
       technologies: (body.technologies ?? []).filter(Boolean),
-      category: body.category,
+      category: body.category as ProjectCategory,
       thumbnailUrl: body.thumbnailUrl,
       githubUrl: body.githubUrl?.trim() || null,
       liveUrl: body.liveUrl?.trim() || null,

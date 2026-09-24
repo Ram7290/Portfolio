@@ -1,9 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Lightbulb, Target, Trophy } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,74 +10,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GitHubIcon } from "@/components/public/brand-icons";
 import { Reveal } from "@/components/public/motion";
-import { publicApi } from "@/lib/api-client";
+import { serverApi } from "@/lib/api-server";
 
-export default function ProjectDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-  
-  const [project, setProject] = useState<any>(null);
-  const [others, setOthers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+export async function generateMetadata({
+  params,
+}: PageProps<"/projects/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await serverApi.projectBySlug(slug);
+  if (!project) return { title: "Project not found" };
+  return {
+    title: project.title,
+    description: project.shortDescription,
+    openGraph: project.thumbnailUrl ? { images: [project.thumbnailUrl] } : undefined,
+  };
+}
 
-  useEffect(() => {
-    async function fetchProject() {
-      try {
-        const [projectResult, allProjectsResult] = await Promise.all([
-          publicApi.projectBySlug(slug),
-          publicApi.projects(),
-        ]);
+export default async function ProjectDetailPage({
+  params,
+}: PageProps<"/projects/[slug]">) {
+  const { slug } = await params;
+  const [project, allProjects] = await Promise.all([
+    serverApi.projectBySlug(slug),
+    serverApi.projects(),
+  ]);
 
-        if (!projectResult.ok || !projectResult.data) {
-          setNotFound(true);
-          return;
-        }
+  if (!project) notFound();
 
-        setProject(projectResult.data);
-        
-        // Get other projects
-        const allProjects = allProjectsResult.data || [];
-        const otherProjects = allProjects.filter((p: any) => p.slug !== slug).slice(0, 3);
-        setOthers(otherProjects);
-      } catch (error) {
-        console.error("Failed to fetch project:", error);
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (slug) {
-      fetchProject();
-    }
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (notFound || !project) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 pb-28 pt-28 text-center sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-semibold">Project not found</h1>
-        <p className="mt-4 text-muted-foreground">
-          The project you're looking for doesn't exist.
-        </p>
-        <Button asChild className="mt-6">
-          <Link href="/projects">View all projects</Link>
-        </Button>
-      </div>
-    );
-  }
+  const others = allProjects.filter((p) => p.slug !== slug).slice(0, 3);
 
   return (
     <article className="mx-auto max-w-4xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
@@ -53,11 +52,12 @@ export interface ProjectRow {
 export function ProjectsManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: ProjectRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -75,7 +75,7 @@ export function ProjectsManager({
       if (result.ok) {
         toast.success(editing ? "Project updated." : "Project added.");
         setDialogOpen(false);
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Save failed.");
       }
@@ -92,7 +92,7 @@ export function ProjectsManager({
       const result = await projectsApi.delete(id);
       if (result.ok) {
         toast.success("Project deleted.");
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Delete failed.");
       }
@@ -111,7 +111,7 @@ export function ProjectsManager({
     setPending(true);
     try {
       const result = await projectsApi.reorder(ids);
-      if (result.ok) router.refresh();
+      if (result.ok) await onChanged();
       else toast.error(result.error || "Reorder failed.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred");

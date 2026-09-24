@@ -1,24 +1,22 @@
-import { withDb } from "@/lib/mongodb";
-import { ProjectModel } from "@/models";
-import { badRequest, success } from "@/lib/api-utils";
+import { NextResponse } from "next/server";
 
-/** GET /api/public/projects/[slug] - Get single project by slug */
+import { getProjectBySlug } from "@/lib/content";
+import { success, type ApiResponse } from "@/lib/api-utils";
+
+/** GET /api/public/projects/[slug] — a single project by slug */
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  
-  if (!slug) return badRequest("Missing slug.");
+  const project = await getProjectBySlug(slug);
 
-  const doc = await withDb(() => ProjectModel.findOne({ slug }).lean());
-  
-  if (!doc) {
-    return new Response(JSON.stringify({ ok: false, error: "Project not found" }), {
-      status: 404,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!project) {
+    return NextResponse.json<ApiResponse>(
+      { ok: false, error: "Project not found." },
+      { status: 404 },
+    );
   }
-  
-  return success(JSON.parse(JSON.stringify(doc)));
+
+  return success(project);
 }

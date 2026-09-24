@@ -7,6 +7,7 @@ import {
   revalidatePaths,
   serverError,
   success,
+  toRows,
   unauthorized,
 } from "@/lib/api-utils";
 
@@ -17,13 +18,15 @@ export interface SocialLinkInput {
   active: boolean;
 }
 
-/** GET /api/settings/social-links — list all social links */
+/** GET /api/settings/social-links — list all social links, including hidden ones (admin only) */
 export async function GET() {
+  if (!(await requireAdmin())) return unauthorized();
+
   const docs = await withDb(() =>
     SocialLinkModel.find().sort({ order: 1 }).lean(),
   );
   if (docs === null) return serverError("Database is not configured.");
-  return success(JSON.parse(JSON.stringify(docs)));
+  return success(toRows(docs));
 }
 
 /** POST /api/settings/social-links — create a social link (admin only) */

@@ -1,40 +1,15 @@
-"use client";
+import type { Metadata } from "next";
 
-import { useEffect, useState } from "react";
 import { ResumeCta } from "@/components/public/resume-cta";
 import { SectionHeading } from "@/components/public/motion";
-import { publicApi } from "@/lib/api-client";
+import { serverApi } from "@/lib/api-server";
 
-export default function ResumePage() {
-  const [resumeUrl, setResumeUrl] = useState("");
-  const [loading, setLoading] = useState(true);
+export const metadata: Metadata = {
+  title: "Resume",
+};
 
-  useEffect(() => {
-    const fetchResumeSettings = async () => {
-      try {
-        const result = await publicApi.getSiteConfig();
-        if (result.ok) {
-          setResumeUrl(result.data.resumeUrl || "");
-        }
-      } catch (error) {
-        console.error('Failed to fetch resume settings:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResumeSettings();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center py-8">
-          <div className="text-sm text-muted-foreground">Loading...</div>
-        </div>
-      </div>
-    );
-  }
+export default async function ResumePage() {
+  const { resumeUrl } = await serverApi.siteConfig();
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">

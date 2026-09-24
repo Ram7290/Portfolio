@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
@@ -11,59 +9,17 @@ import {
   GitHubIcon,
   LinkedInIcon,
 } from "@/components/public/brand-icons";
-import { publicApi } from "@/lib/api-client";
+import { serverApi } from "@/lib/api-server";
 
-interface Profile {
-  email: string;
-}
+export const metadata: Metadata = {
+  title: "Contact",
+};
 
-interface SocialLink {
-  platform: string;
-  url: string;
-}
-
-export default function ContactPage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [profileResult, siteConfigResult] = await Promise.all([
-          publicApi.getProfile(),
-          publicApi.getSiteConfig(),
-        ]);
-
-        if (profileResult.ok) {
-          setProfile(profileResult.data);
-        }
-
-        if (siteConfigResult.ok) {
-          setSocialLinks(siteConfigResult.data.socialLinks || []);
-        }
-      } catch (error) {
-        console.error('Failed to fetch contact data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center py-8">
-          <div className="text-sm text-muted-foreground">Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  const github = socialLinks.find((s) => s.platform.toLowerCase() === "github")?.url;
-  const linkedin = socialLinks.find((s) => s.platform.toLowerCase() === "linkedin")?.url;
+export default async function ContactPage() {
+  const config = await serverApi.siteConfig();
+  const email = config.email;
+  const github = config.social.github;
+  const linkedin = config.social.linkedin;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 lg:px-8">
@@ -79,15 +35,15 @@ export default function ContactPage() {
             <CardContent className="space-y-5 p-6">
               <div>
                 <h2 className="font-semibold">Direct</h2>
-                {profile?.email && (
+                {email ? (
                   <a
-                    href={`mailto:${profile.email}`}
+                    href={`mailto:${email}`}
                     className="mt-2 flex items-center gap-2.5 text-sm text-primary hover:underline"
                   >
                     <Mail className="size-4" aria-hidden="true" />
-                    {profile.email}
+                    {email}
                   </a>
-                )}
+                ) : null}
               </div>
               <div>
                 <h2 className="font-semibold">Elsewhere</h2>

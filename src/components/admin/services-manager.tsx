@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,47 +27,50 @@ import {
   type ServiceDialogValues,
   type ServiceRow,
 } from "@/components/admin/service-fields";
-import { deleteService, reorderServices, saveService } from "@/actions/content";
+import { servicesApi, type ApiResponse } from "@/lib/api-client";
 
 export function ServicesManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: ServiceRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  function handleSave(values: ServiceDialogValues) {
-    startTransition(async () => {
-      const result = await saveService({
-        id: editing?.id,
-        ...values,
-        order: editing?.order ?? initial.length + 1,
-      });
-      if (result.ok) {
-        toast.success(editing ? "Service updated." : "Service added.");
-        setDialogOpen(false);
-        router.refresh();
-      } else {
-        toast.error(result.error);
+  async function run(request: Promise<ApiResponse<unknown>>, successMessage?: string) {
+    setPending(true);
+    try {
+      const result = await request;
+      if (!result.ok) {
+        toast.error(result.error || "Request failed.");
+        return false;
       }
-    });
+      if (successMessage) toast.success(successMessage);
+      await onChanged();
+      return true;
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleSave(values: ServiceDialogValues) {
+    const data = { ...values, order: editing?.order ?? initial.length + 1 };
+    const saved = await run(
+      editing
+        ? servicesApi.update(editing.id, { ...data, id: editing.id })
+        : servicesApi.create(data),
+      editing ? "Service updated." : "Service added.",
+    );
+    if (saved) setDialogOpen(false);
   }
 
   function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteService(id);
-      if (result.ok) {
-        toast.success("Service deleted.");
-        router.refresh();
-      } else {
-        toast.error(result.error);
-      }
-    });
+    void run(servicesApi.delete(id), "Service deleted.");
   }
 
   function move(index: number, direction: -1 | 1) {
@@ -76,11 +78,7 @@ export function ServicesManager({
     if (target < 0 || target >= initial.length) return;
     const ids = initial.map((s) => s.id);
     [ids[index], ids[target]] = [ids[target], ids[index]];
-    startTransition(async () => {
-      const result = await reorderServices(ids);
-      if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+    void run(servicesApi.reorder(ids));
   }
 
   return (

@@ -7,6 +7,7 @@ import {
   revalidatePaths,
   serverError,
   success,
+  toRow,
   unauthorized,
 } from "@/lib/api-utils";
 import type { StatItem } from "@/types/portfolio";
@@ -26,13 +27,15 @@ export interface ProfileInput {
   stats: StatItem[];
 }
 
-/** GET /api/profile — fetch the current profile */
+/** GET /api/profile — fetch the stored profile for editing (admin only) */
 export async function GET() {
+  if (!(await requireAdmin())) return unauthorized();
+
   const doc = await withDb(() =>
     ProfileModel.findOne().sort({ updatedAt: -1 }).lean(),
   );
   if (!doc) return success(null);
-  return success(JSON.parse(JSON.stringify(doc)));
+  return success(toRow(doc));
 }
 
 /** PUT /api/profile — create or update the profile (admin only) */

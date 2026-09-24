@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,47 +26,50 @@ import {
   type EducationDialogValues,
   type EducationRow,
 } from "@/components/admin/education-fields";
-import { deleteEducation, reorderEducation, saveEducation } from "@/actions/content";
+import { educationApi, type ApiResponse } from "@/lib/api-client";
 
 export function EducationManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: EducationRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<EducationRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  function handleSave(values: EducationDialogValues) {
-    startTransition(async () => {
-      const result = await saveEducation({
-        id: editing?.id,
-        ...values,
-        order: editing?.order ?? initial.length + 1,
-      });
-      if (result.ok) {
-        toast.success(editing ? "Education updated." : "Education added.");
-        setDialogOpen(false);
-        router.refresh();
-      } else {
-        toast.error(result.error);
+  async function run(request: Promise<ApiResponse<unknown>>, successMessage?: string) {
+    setPending(true);
+    try {
+      const result = await request;
+      if (!result.ok) {
+        toast.error(result.error || "Request failed.");
+        return false;
       }
-    });
+      if (successMessage) toast.success(successMessage);
+      await onChanged();
+      return true;
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleSave(values: EducationDialogValues) {
+    const data = { ...values, order: editing?.order ?? initial.length + 1 };
+    const saved = await run(
+      editing
+        ? educationApi.update(editing.id, { ...data, id: editing.id })
+        : educationApi.create(data),
+      editing ? "Education updated." : "Education added.",
+    );
+    if (saved) setDialogOpen(false);
   }
 
   function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteEducation(id);
-      if (result.ok) {
-        toast.success("Education deleted.");
-        router.refresh();
-      } else {
-        toast.error(result.error);
-      }
-    });
+    void run(educationApi.delete(id), "Education deleted.");
   }
 
   function move(index: number, direction: -1 | 1) {
@@ -75,11 +77,7 @@ export function EducationManager({
     if (target < 0 || target >= initial.length) return;
     const ids = initial.map((s) => s.id);
     [ids[index], ids[target]] = [ids[target], ids[index]];
-    startTransition(async () => {
-      const result = await reorderEducation(ids);
-      if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+    void run(educationApi.reorder(ids));
   }
 
   return (

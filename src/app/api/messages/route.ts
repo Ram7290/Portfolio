@@ -7,6 +7,7 @@ import {
   revalidatePaths,
   serverError,
   success,
+  toRows,
   unauthorized,
 } from "@/lib/api-utils";
 
@@ -55,7 +56,7 @@ export async function GET() {
     ContactMessageModel.find().sort({ createdAt: -1 }).lean(),
   );
   if (docs === null) return serverError("Database is not configured.");
-  return success(JSON.parse(JSON.stringify(docs)));
+  return success(toRows(docs));
 }
 
 /** POST /api/messages — submit contact form (public) */

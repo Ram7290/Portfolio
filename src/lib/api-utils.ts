@@ -73,6 +73,20 @@ export function revalidatePaths(paths: string[]) {
 }
 
 /**
+ * Lean Mongo doc → plain JSON row with a string `id` (drops `_id` and `__v`),
+ * the shape every admin client component expects.
+ */
+export function toRow<T = Record<string, unknown>>(doc: object): T {
+  const { _id, __v, ...rest } = JSON.parse(JSON.stringify(doc));
+  void __v;
+  return { ...rest, id: String(_id) } as T;
+}
+
+export function toRows<T = Record<string, unknown>>(docs: object[]): T[] {
+  return docs.map((doc) => toRow<T>(doc));
+}
+
+/**
  * Helper to safely parse JSON request body.
  */
 export async function parseRequestBody<T>(request: Request): Promise<T | null> {

@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,11 +48,12 @@ export interface ExperienceRow {
 export function ExperienceManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: ExperienceRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<ExperienceRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -71,7 +71,7 @@ export function ExperienceManager({
       if (result.ok) {
         toast.success(editing ? "Experience updated." : "Experience added.");
         setDialogOpen(false);
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Save failed.");
       }
@@ -88,7 +88,7 @@ export function ExperienceManager({
       const result = await experienceApi.delete(id);
       if (result.ok) {
         toast.success("Experience deleted.");
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Delete failed.");
       }
@@ -107,7 +107,7 @@ export function ExperienceManager({
     setPending(true);
     try {
       const result = await experienceApi.reorder(ids);
-      if (result.ok) router.refresh();
+      if (result.ok) await onChanged();
       else toast.error(result.error || "Reorder failed.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred");

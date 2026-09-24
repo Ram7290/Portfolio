@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { Providers } from "@/components/providers";
-import { getSiteSettings } from "@/lib/settings";
-import { getProfile, getSiteConfig } from "@/lib/content";
+import { serverApi } from "@/lib/api-server";
 
 import "./globals.css";
 
@@ -19,9 +18,9 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const [settings, profile, siteConfig] = await Promise.all([
-    getSiteSettings(),
-    getProfile(),
-    getSiteConfig(),
+    serverApi.siteSettings(),
+    serverApi.profile(),
+    serverApi.siteConfig(),
   ]);
   const title = settings.siteTitle || `${siteConfig.name} — ${siteConfig.role}`;
   const description = settings.metaDescription || siteConfig.tagline;

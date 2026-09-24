@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/public/site-footer";
 import { SiteHeader } from "@/components/public/site-header";
-import { getSiteConfig, getSocialLinks } from "@/lib/content";
+import { serverApi } from "@/lib/api-server";
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   const [config, socialLinks] = await Promise.all([
-    getSiteConfig(),
-    getSocialLinks(),
+    serverApi.siteConfig(),
+    serverApi.socialLinks(),
   ]);
 
   return (

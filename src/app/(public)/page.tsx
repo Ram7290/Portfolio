@@ -7,19 +7,9 @@ import { ProjectsSection } from "@/components/public/projects-section";
 import { ServicesSection } from "@/components/public/services-section";
 import { EducationSection } from "@/components/public/education-section";
 import { ResumeCta } from "@/components/public/resume-cta";
-import { 
-  getProfile,
-  getSkills,
-  getExperience,
-  getProjects,
-  getServices,
-  getEducation,
-  getSiteConfig,
-  getSocialLinks,
-} from "@/lib/content";
+import { serverApi } from "@/lib/api-server";
 
 export default async function HomePage() {
-  // Fetch all data server-side in parallel - no loading states needed!
   const [
     profile,
     skills,
@@ -28,19 +18,21 @@ export default async function HomePage() {
     services,
     education,
     siteConfig,
+    siteSettings,
     socialLinks,
   ] = await Promise.all([
-    getProfile(),
-    getSkills(),
-    getExperience(),
-    getProjects(),
-    getServices(),
-    getEducation(),
-    getSiteConfig(),
-    getSocialLinks(),
+    serverApi.profile(),
+    serverApi.skills(),
+    serverApi.experience(),
+    serverApi.projects(),
+    serverApi.services(),
+    serverApi.education(),
+    serverApi.siteConfig(),
+    serverApi.siteSettings(),
+    serverApi.socialLinks(),
   ]);
 
-  const featured = projects.filter((p: any) => p.featured).slice(0, 3);
+  const featured = projects.filter((p) => p.featured).slice(0, 3);
   const resumeUrl = siteConfig.resumeUrl || "";
 
   return (
@@ -48,8 +40,8 @@ export default async function HomePage() {
       <Hero
         profile={{
           ...profile,
-          name: siteConfig.heroHeading || profile.name,
-          tagline: siteConfig.heroSubheading || profile.tagline,
+          name: siteSettings.heroHeading || profile.name,
+          tagline: siteSettings.heroSubheading || profile.tagline,
         }}
         socialLinks={socialLinks}
         resumeUrl={resumeUrl}

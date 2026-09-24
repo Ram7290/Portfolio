@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, Inbox, MailOpen } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,8 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { deleteMessage, setMessageRead } from "@/actions/messages";
 import { DeleteButton } from "@/components/admin/confirm-dialog";
+import { messagesApi } from "@/lib/api-client";
+
+/** Window event fired whenever messages change, so the sidebar badge can refetch. */
+export const MESSAGES_CHANGED_EVENT = "admin:messages-changed";
 
 export interface MessageRow {
   id: string;
@@ -32,41 +34,58 @@ export interface MessageRow {
 export function MessagesManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: MessageRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [openMessage, setOpenMessage] = useState<MessageRow | null>(null);
 
   const unread = initial.filter((m) => !m.read).length;
 
-  function toggleRead(message: MessageRow) {
-    startTransition(async () => {
-      const result = await setMessageRead(message.id, !message.read);
-      if (result.ok) {
-        router.refresh();
-        if (openMessage?.id === message.id) {
-          setOpenMessage({ ...openMessage, read: !message.read });
-        }
-      } else {
-        toast.error(result.error);
-      }
-    });
+  async function afterChange() {
+    window.dispatchEvent(new Event(MESSAGES_CHANGED_EVENT));
+    await onChanged();
   }
 
-  function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteMessage(id);
+  async function toggleRead(message: MessageRow) {
+    // Update the open dialog right away (functional update: the dialog may
+    // open in the same tick as this call, before `openMessage` re-renders).
+    setOpenMessage((open) =>
+      open?.id === message.id ? { ...open, read: !message.read } : open,
+    );
+    setPending(true);
+    try {
+      const result = await messagesApi.setRead(message.id, !message.read);
+      if (result.ok) {
+        await afterChange();
+      } else {
+        toast.error(result.error || "Update failed.");
+        setOpenMessage((open) =>
+          open?.id === message.id ? { ...open, read: message.read } : open,
+        );
+      }
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setPending(true);
+    try {
+      const result = await messagesApi.delete(id);
       if (result.ok) {
         toast.success("Message deleted.");
         setOpenMessage(null);
-        router.refresh();
+        await afterChange();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Delete failed.");
       }
-    });
+    } finally {
+      setPending(false);
+    }
   }
 
   if (initial.length === 0) {

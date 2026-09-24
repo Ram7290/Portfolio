@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,11 +37,12 @@ import {
 export function SkillsManager({
   initial,
   dbConfigured,
+  onChanged,
 }: {
   initial: SkillRow[];
   dbConfigured: boolean;
+  onChanged: () => Promise<void> | void;
 }) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<SkillRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -75,7 +75,7 @@ export function SkillsManager({
       if (result.ok) {
         toast.success(editing ? "Skill updated." : "Skill added.");
         setDialogOpen(false);
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Save failed.");
       }
@@ -92,7 +92,7 @@ export function SkillsManager({
       const result = await skillsApi.delete(id);
       if (result.ok) {
         toast.success("Skill deleted.");
-        router.refresh();
+        await onChanged();
       } else {
         toast.error(result.error || "Delete failed.");
       }
@@ -107,7 +107,7 @@ export function SkillsManager({
     setPending(true);
     try {
       const result = await skillsApi.toggleActive(id, active);
-      if (result.ok) router.refresh();
+      if (result.ok) await onChanged();
       else toast.error(result.error || "Toggle failed.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred");
@@ -124,7 +124,7 @@ export function SkillsManager({
     setPending(true);
     try {
       const result = await skillsApi.reorder(ids);
-      if (result.ok) router.refresh();
+      if (result.ok) await onChanged();
       else toast.error(result.error || "Reorder failed.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred");
