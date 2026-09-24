@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +16,38 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginAction, type LoginState } from "@/actions/auth";
+import { authApi } from "@/lib/api-client";
 
 export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
-  const [state, formAction, pending] = useActionState<LoginState | null, FormData>(
-    loginAction,
-    null,
-  );
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+
+    try {
+      const result = await authApi.login({ email, password });
+      if (result.ok) {
+        toast.success("Signed in successfully!");
+        router.push(callbackUrl.startsWith("/admin") ? callbackUrl : "/admin");
+        router.refresh();
+      } else {
+        setError(result.error || "Sign-in failed.");
+        toast.error(result.error || "Sign-in failed.");
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
     <Card className="border-border/60 bg-card/70 backdrop-blur">
@@ -31,34 +58,35 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           environment variables.
         </CardDescription>
       </CardHeader>
-      <form action={formAction}>
-        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+      <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="admin-email">Email</Label>
             <Input
               id="admin-email"
-              name="email"
               type="email"
               autoComplete="username"
               required
               placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="admin-password">Password</Label>
             <Input
               id="admin-password"
-              name="password"
               type="password"
               autoComplete="current-password"
               required
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {state?.error ? (
+          {error ? (
             <p role="alert" className="text-sm text-destructive">
-              {state.error}
+              {error}
             </p>
           ) : null}
         </CardContent>

@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Lightbulb, Target, Trophy } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,47 +12,74 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GitHubIcon } from "@/components/public/brand-icons";
 import { Reveal } from "@/components/public/motion";
-import { getProjectBySlug, getProjects } from "@/lib/content";
-import { placeholderProjects } from "@/lib/placeholder-data";
+import { publicApi } from "@/lib/api-client";
 
-interface ProjectPageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function ProjectDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const slug = params.slug as string;
+  
+  const [project, setProject] = useState<any>(null);
+  const [others, setOthers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-export async function generateStaticParams() {
-  const projects = await getProjects();
-  const slugs = projects.map((p) => ({ slug: p.slug }));
-  // build must not depend on a reachable database
-  return slugs.length > 0
-    ? slugs
-    : placeholderProjects.map((p) => ({ slug: p.slug }));
-}
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const [projectResult, allProjectsResult] = await Promise.all([
+          publicApi.projectBySlug(slug),
+          publicApi.projects(),
+        ]);
 
-export async function generateMetadata({
-  params,
-}: ProjectPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const project = await getProjectBySlug(slug);
-  if (!project) return { title: "Project not found" };
+        if (!projectResult.ok || !projectResult.data) {
+          setNotFound(true);
+          return;
+        }
 
-  return {
-    title: project.title,
-    description: project.shortDescription,
-    openGraph: {
-      title: project.title,
-      description: project.shortDescription,
-      images: project.thumbnailUrl ? [project.thumbnailUrl] : undefined,
-    },
-  };
-}
+        setProject(projectResult.data);
+        
+        // Get other projects
+        const allProjects = allProjectsResult.data || [];
+        const otherProjects = allProjects.filter((p: any) => p.slug !== slug).slice(0, 3);
+        setOthers(otherProjects);
+      } catch (error) {
+        console.error("Failed to fetch project:", error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-export default async function ProjectDetailPage({ params }: ProjectPageProps) {
-  const { slug } = await params;
-  const project = await getProjectBySlug(slug);
-  if (!project) notFound();
+    if (slug) {
+      fetchProject();
+    }
+  }, [slug]);
 
-  const all = await getProjects();
-  const others = all.filter((p) => p.slug !== slug).slice(0, 3);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (notFound || !project) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 pb-28 pt-28 text-center sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-semibold">Project not found</h1>
+        <p className="mt-4 text-muted-foreground">
+          The project you're looking for doesn't exist.
+        </p>
+        <Button asChild className="mt-6">
+          <Link href="/projects">View all projects</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <article className="mx-auto max-w-4xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">
@@ -161,12 +190,12 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
             </Reveal>
           ) : null}
 
-          {project.features.length > 0 ? (
+          {project.features?.length > 0 ? (
             <Reveal>
               <section aria-label="Features">
                 <h2 className="text-xl font-semibold tracking-tight">Features</h2>
                 <ul className="mt-4 space-y-2.5">
-                  {project.features.map((feature, i) => (
+                  {project.features.map((feature: string, i: number) => (
                     <li
                       key={i}
                       className="flex gap-3 text-muted-foreground"
@@ -217,13 +246,13 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               <CardContent className="p-6">
                 <h2 className="text-sm font-semibold">Technologies</h2>
                 <ul className="mt-3 flex flex-wrap gap-1.5">
-                  {project.technologies.map((tech) => (
+                  {project.technologies?.map((tech: string) => (
                     <li key={tech}>
                       <Badge variant="outline" className="text-xs">
                         {tech}
                       </Badge>
                     </li>
-                  ))}
+                  )) || []}
                 </ul>
                 <Separator className="my-5" />
                 <h2 className="text-sm font-semibold">Category</h2>
@@ -240,7 +269,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
         <div className="mt-20">
           <h2 className="text-lg font-semibold tracking-tight">More projects</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
-            {others.map((p) => (
+            {others.map((p: any) => (
               <Link
                 key={p.slug}
                 href={`/projects/${p.slug}`}

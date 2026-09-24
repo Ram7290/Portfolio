@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploadField } from "@/components/admin/image-upload";
-import { saveProfile } from "@/actions/profile";
+import { profileApi } from "@/lib/api-client";
 
 interface ProfileFormValues {
   name: string;
@@ -40,7 +40,7 @@ export function ProfileForm({
   initial: (ProfileFormValues & { id?: string }) | null;
 }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [values, setValues] = useState<ProfileFormValues>(
@@ -64,11 +64,12 @@ export function ProfileForm({
     value: ProfileFormValues[K],
   ) => setValues((v) => ({ ...v, [key]: value }));
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    startTransition(async () => {
-      const result = await saveProfile({
+    setPending(true);
+    try {
+      const result = await profileApi.save({
         name: values.name,
         role: values.role,
         tagline: values.tagline,
@@ -84,10 +85,16 @@ export function ProfileForm({
         toast.success("Profile saved.");
         router.refresh();
       } else {
-        setError(result.error);
-        toast.error(result.error);
+        setError(result.error || "Save failed.");
+        toast.error(result.error || "Save failed.");
       }
-    });
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setPending(false);
+    }
   }
 
   return (

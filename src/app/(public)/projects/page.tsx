@@ -1,21 +1,40 @@
-import type { Metadata } from "next";
+"use client";
 
+import { useEffect, useState } from "react";
 import { ProjectsSection } from "@/components/public/projects-section";
 import { SectionHeading } from "@/components/public/motion";
-import { getProjects, getSiteConfig } from "@/lib/content";
+import { publicApi } from "@/lib/api-client";
 
-export const revalidate = 60;
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export async function generateMetadata(): Promise<Metadata> {
-  const config = await getSiteConfig();
-  return {
-    title: "Projects",
-    description: `Projects by ${config.name} — full stack applications, APIs, and interfaces.`,
-  };
-}
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const result = await publicApi.projects();
+        setProjects(result.data || []);
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-export default async function ProjectsPage() {
-  const projects = await getProjects();
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-28 pt-28 sm:px-6 lg:px-8">

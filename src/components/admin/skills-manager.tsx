@@ -31,11 +31,9 @@ import {
   SkillDialogFields,
 } from "@/components/admin/skill-fields";
 import {
-  deleteSkill,
-  reorderSkills,
-  saveSkill,
-  toggleSkillActive,
-} from "@/actions/skills";
+  skillsApi,
+  type SkillInput,
+} from "@/lib/api-client";
 
 export function SkillsManager({
   initial,
@@ -45,7 +43,7 @@ export function SkillsManager({
   dbConfigured: boolean;
 }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<SkillRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -59,56 +57,80 @@ export function SkillsManager({
     setDialogOpen(true);
   }
 
-  function handleSave(values: SkillDialogFields) {
-    startTransition(async () => {
-      const result = await saveSkill({
-        id: editing?.id,
+  async function handleSave(values: SkillDialogFields) {
+    setPending(true);
+    try {
+      const data: SkillInput = {
         name: values.name,
         category: values.category,
         proficiency: values.proficiency,
         order: editing?.order ?? initial.length + 1,
         active: editing?.active ?? true,
-      });
+      };
+      
+      const result = editing?.id 
+        ? await skillsApi.update(editing.id, { ...data, id: editing.id })
+        : await skillsApi.create(data);
+        
       if (result.ok) {
         toast.success(editing ? "Skill updated." : "Skill added.");
         setDialogOpen(false);
         router.refresh();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Save failed.");
       }
-    });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteSkill(id);
+  async function handleDelete(id: string) {
+    setPending(true);
+    try {
+      const result = await skillsApi.delete(id);
       if (result.ok) {
         toast.success("Skill deleted.");
         router.refresh();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Delete failed.");
       }
-    });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
-  function handleToggle(id: string, active: boolean) {
-    startTransition(async () => {
-      const result = await toggleSkillActive(id, active);
+  async function handleToggle(id: string, active: boolean) {
+    setPending(true);
+    try {
+      const result = await skillsApi.toggleActive(id, active);
       if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+      else toast.error(result.error || "Toggle failed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
-  function move(index: number, direction: -1 | 1) {
+  async function move(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= initial.length) return;
     const ids = initial.map((s) => s.id);
     [ids[index], ids[target]] = [ids[target], ids[index]];
-    startTransition(async () => {
-      const result = await reorderSkills(ids);
+    setPending(true);
+    try {
+      const result = await skillsApi.reorder(ids);
       if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+      else toast.error(result.error || "Reorder failed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (

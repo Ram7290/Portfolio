@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, Pencil, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,7 +27,7 @@ import {
   ProjectDialogFields,
   type ProjectDialogValues,
 } from "@/components/admin/project-fields";
-import { deleteProject, reorderProjects, saveProject } from "@/actions/projects";
+import { projectsApi } from "@/lib/api-client";
 
 export interface ProjectRow {
   id: string;
@@ -58,49 +58,66 @@ export function ProjectsManager({
   dbConfigured: boolean;
 }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  function handleSave(values: ProjectDialogValues) {
-    startTransition(async () => {
-      const result = await saveProject({
-        id: editing?.id,
+  async function handleSave(values: ProjectDialogValues) {
+    setPending(true);
+    try {
+      const data = {
         ...values,
         order: editing?.order ?? initial.length + 1,
-      });
+      };
+      const result = editing?.id
+        ? await projectsApi.update(editing.id, { ...data, id: editing.id })
+        : await projectsApi.create(data);
       if (result.ok) {
         toast.success(editing ? "Project updated." : "Project added.");
         setDialogOpen(false);
         router.refresh();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Save failed.");
       }
-    });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
-  function handleDelete(id: string) {
-    startTransition(async () => {
-      const result = await deleteProject(id);
+  async function handleDelete(id: string) {
+    setPending(true);
+    try {
+      const result = await projectsApi.delete(id);
       if (result.ok) {
         toast.success("Project deleted.");
         router.refresh();
       } else {
-        toast.error(result.error);
+        toast.error(result.error || "Delete failed.");
       }
-    });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
-  function move(index: number, direction: -1 | 1) {
+  async function move(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= initial.length) return;
     const ids = initial.map((s) => s.id);
     [ids[index], ids[target]] = [ids[target], ids[index]];
-    startTransition(async () => {
-      const result = await reorderProjects(ids);
+    setPending(true);
+    try {
+      const result = await projectsApi.reorder(ids);
       if (result.ok) router.refresh();
-      else toast.error(result.error);
-    });
+      else toast.error(result.error || "Reorder failed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (

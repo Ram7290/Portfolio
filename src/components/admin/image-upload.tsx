@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import { ImagePlus, LoaderCircle, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { uploadImageAction } from "@/actions/uploads";
+import { uploadApi } from "@/lib/api-client";
 
 /**
  * Cloudinary image upload field (profile picture / project thumbnail).
@@ -28,31 +28,23 @@ export function ImageUploadField({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [pending, startTransition] = useTransition();
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     setUploading(true);
-    const fd = new FormData();
-    fd.set("file", file);
-    fd.set("folder", folder);
-    startTransition(async () => {
-      try {
-        const result = await uploadImageAction(fd);
-        if (result.ok) {
-          onChange({ url: result.url, publicId: result.publicId });
-          toast.success("Image uploaded.");
-        } else {
-          toast.error(result.error);
-        }
-      } catch {
-        toast.error("Upload failed. Please try again.");
-      } finally {
-        setUploading(false);
+    try {
+      const result = await uploadApi.image(file, folder);
+      if (result.ok && result.data) {
+        onChange({ url: result.data.url, publicId: result.data.publicId });
+        toast.success("Image uploaded.");
+      } else {
+        toast.error(result.error || "Upload failed.");
       }
-    });
+    } catch (err) {
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   }
-
-  const busy = uploading || pending;
 
   return (
     <div className="space-y-2">
@@ -86,10 +78,10 @@ export function ImageUploadField({
               type="button"
               variant="outline"
               size="sm"
-              disabled={busy}
+              disabled={uploading}
               onClick={() => inputRef.current?.click()}
             >
-              {busy ? (
+              {uploading ? (
                 <LoaderCircle className="size-3.5 animate-spin" />
               ) : (
                 <ImagePlus className="size-3.5" />
@@ -100,7 +92,7 @@ export function ImageUploadField({
               type="button"
               variant="ghost"
               size="sm"
-              disabled={busy}
+              disabled={uploading}
               onClick={() => onChange({ url: null, publicId: null })}
             >
               <X className="size-3.5" />
@@ -111,16 +103,16 @@ export function ImageUploadField({
       ) : (
         <button
           type="button"
-          disabled={busy}
+          disabled={uploading}
           onClick={() => inputRef.current?.click()}
           className="flex h-28 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-60"
         >
-          {busy ? (
+          {uploading ? (
             <LoaderCircle className="size-5 animate-spin text-primary" />
           ) : (
             <ImagePlus className="size-5 text-primary" />
           )}
-          {busy ? "Uploading…" : "Click to upload image"}
+          {uploading ? "Uploading…" : "Click to upload image"}
           <span className="text-xs text-muted-foreground/70">
             JPEG, PNG, WebP or GIF · max 4 MB
           </span>

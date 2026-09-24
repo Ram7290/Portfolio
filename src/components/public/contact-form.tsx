@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoaderCircle, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { submitContactForm, type ContactFormState } from "@/actions/messages";
+import { messagesApi } from "@/lib/api-client";
 
 interface ContactFields {
   name: string;
@@ -27,44 +27,41 @@ export function ContactForm() {
     setError,
   } = useForm<ContactFields>();
 
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
-  const onSubmit = handleSubmit((values, event) => {
-    // Build the payload synchronously at submit time (the native event's
-    // target is only valid during dispatch).
-    const form = event?.target as HTMLFormElement | undefined;
-    const formData = new FormData(form);
-    for (const [key, value] of Object.entries(values)) {
-      formData.set(key, value);
-    }
-    const honeypot = form?.elements.namedItem("website");
-    formData.set(
-      "website",
-      honeypot instanceof HTMLInputElement ? honeypot.value : "",
-    );
-
-    startTransition(async () => {
-      let result: ContactFormState;
-      try {
-        result = await submitContactForm(null, formData);
-      } catch {
-        result = { ok: false, error: "Something went wrong. Please try again." };
-      }
+  const onSubmit = handleSubmit(async (values) => {
+    setPending(true);
+    try {
+      const result = await messagesApi.submit({
+        ...values,
+        website: honeypot,
+      });
 
       if (result.ok) {
         setSubmitted(true);
         toast.success("Message sent — thank you! I'll get back to you soon.");
         reset();
       } else {
-        if (result.fieldErrors) {
-          for (const [field, message] of Object.entries(result.fieldErrors)) {
-            setError(field as keyof ContactFields, { message });
+        // Try to parse field errors from error string
+        try {
+          const parsed = JSON.parse(result.error || "{}");
+          if (parsed.fieldErrors) {
+            for (const [field, message] of Object.entries(parsed.fieldErrors)) {
+              setError(field as keyof ContactFields, { message: message as string });
+            }
           }
+        } catch {
+          // Not JSON, just show the error
         }
         toast.error(result.error ?? "Something went wrong. Please try again.");
       }
-    });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
   });
 
   return (
@@ -77,6 +74,8 @@ export function ContactForm() {
         autoComplete="off"
         aria-hidden="true"
         className="hidden"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
