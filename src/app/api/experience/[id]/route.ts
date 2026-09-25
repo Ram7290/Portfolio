@@ -1,7 +1,10 @@
 import { withDb } from "@/lib/mongodb";
 import { ExperienceModel } from "@/models";
 import {
+  NOT_FOUND,
   badRequest,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -34,7 +37,7 @@ export async function PUT(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<ExperienceInput>(request);
   if (!body) return badRequest("Invalid request body.");
@@ -53,8 +56,8 @@ export async function PUT(
     return badRequest("End date cannot be before start date.");
   }
 
-  const result = await withDb(() =>
-    ExperienceModel.findByIdAndUpdate(id, {
+  const result = await withDb(async () =>
+    (await ExperienceModel.findByIdAndUpdate(id, {
       company,
       role,
       location: body.location?.trim() || null,
@@ -66,10 +69,11 @@ export async function PUT(
       technologies: (body.technologies ?? []).filter(Boolean),
       achievements: (body.achievements ?? []).filter(Boolean),
       order: Number.isFinite(body.order) ? body.order : 0,
-    }),
+    })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();
@@ -83,10 +87,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => ExperienceModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await ExperienceModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();

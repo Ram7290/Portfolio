@@ -1,7 +1,10 @@
 import { withDb } from "@/lib/mongodb";
 import { ServiceModel } from "@/models";
 import {
+  NOT_FOUND,
   badRequest,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -26,7 +29,7 @@ export async function PUT(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<ServiceInput>(request);
   if (!body) return badRequest("Invalid request body.");
@@ -34,17 +37,18 @@ export async function PUT(
   const title = body.title?.trim();
   if (!title) return badRequest("Service title is required.");
 
-  const result = await withDb(() =>
-    ServiceModel.findByIdAndUpdate(id, {
+  const result = await withDb(async () =>
+    (await ServiceModel.findByIdAndUpdate(id, {
       title,
       description: body.description?.trim() ?? "",
       icon: body.icon?.trim() || "sparkles",
       order: Number.isFinite(body.order) ? body.order : 0,
       active: body.active,
-    }),
+    })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/"]);
   return success();
@@ -58,10 +62,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => ServiceModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await ServiceModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/"]);
   return success();

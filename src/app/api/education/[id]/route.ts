@@ -1,7 +1,10 @@
 import { withDb } from "@/lib/mongodb";
 import { EducationModel } from "@/models";
 import {
+  NOT_FOUND,
   badRequest,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -27,7 +30,7 @@ export async function PUT(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<EducationInput>(request);
   if (!body) return badRequest("Invalid request body.");
@@ -48,18 +51,19 @@ export async function PUT(
     }
   }
 
-  const result = await withDb(() =>
-    EducationModel.findByIdAndUpdate(id, {
+  const result = await withDb(async () =>
+    (await EducationModel.findByIdAndUpdate(id, {
       degree,
       institution,
       startYear: year,
       endYear: body.endYear != null ? Number(body.endYear) : null,
       description: body.description?.trim() || null,
       order: Number.isFinite(body.order) ? body.order : 0,
-    }),
+    })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();
@@ -73,10 +77,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => EducationModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await EducationModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();

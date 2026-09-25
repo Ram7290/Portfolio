@@ -1,7 +1,9 @@
 import { withDb } from "@/lib/mongodb";
 import { ProjectModel } from "@/models";
 import {
+  SLUG_TAKEN,
   badRequest,
+  conflict,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -75,7 +77,7 @@ export async function POST(request: Request) {
   const result = await withDb(async () => {
     // Check slug uniqueness
     const clash = await ProjectModel.findOne({ slug });
-    if (clash) throw new Error("SLUG_TAKEN");
+    if (clash) return SLUG_TAKEN;
 
     return await ProjectModel.create({
       title,
@@ -99,6 +101,9 @@ export async function POST(request: Request) {
 
   if (result === null) {
     return serverError("Database is not configured.");
+  }
+  if (result === SLUG_TAKEN) {
+    return conflict(`Another project already uses the slug "${slug}".`);
   }
 
   revalidatePaths(["/", "/projects", `/projects/${slug}`]);

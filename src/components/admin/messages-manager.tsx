@@ -17,9 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { DeleteButton } from "@/components/admin/confirm-dialog";
 import { messagesApi } from "@/lib/api-client";
-
-/** Window event fired whenever messages change, so the sidebar badge can refetch. */
-export const MESSAGES_CHANGED_EVENT = "admin:messages-changed";
+import { MESSAGES_CHANGED_EVENT } from "@/lib/admin-events";
 
 export interface MessageRow {
   id: string;

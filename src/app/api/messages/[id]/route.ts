@@ -1,7 +1,10 @@
 import { withDb } from "@/lib/mongodb";
 import { ContactMessageModel } from "@/models";
 import {
+  NOT_FOUND,
   badRequest,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -18,18 +21,19 @@ export async function PATCH(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<{ read: boolean }>(request);
   if (!body || typeof body.read !== "boolean") {
     return badRequest("Missing or invalid 'read' field.");
   }
 
-  const result = await withDb(() =>
-    ContactMessageModel.findByIdAndUpdate(id, { read: body.read }),
+  const result = await withDb(async () =>
+    (await ContactMessageModel.findByIdAndUpdate(id, { read: body.read })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/admin/messages", "/admin"]);
   return success();
@@ -43,10 +47,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => ContactMessageModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await ContactMessageModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/admin/messages", "/admin"]);
   return success();

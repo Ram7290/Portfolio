@@ -1,7 +1,10 @@
 import { withDb } from "@/lib/mongodb";
 import { SkillModel } from "@/models";
 import {
+  NOT_FOUND,
   badRequest,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -28,7 +31,7 @@ export async function PUT(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<SkillInput>(request);
   if (!body) return badRequest("Invalid request body.");
@@ -39,17 +42,18 @@ export async function PUT(
     return badRequest("Invalid category.");
   }
 
-  const result = await withDb(() =>
-    SkillModel.findByIdAndUpdate(id, {
+  const result = await withDb(async () =>
+    (await SkillModel.findByIdAndUpdate(id, {
       name,
       category: body.category,
       proficiency: body.proficiency?.trim() || null,
       order: Number.isFinite(body.order) ? body.order : 0,
       active: body.active,
-    }),
+    })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();
@@ -63,10 +67,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => SkillModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await SkillModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();
@@ -80,18 +85,19 @@ export async function PATCH(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<{ active: boolean }>(request);
   if (!body || typeof body.active !== "boolean") {
     return badRequest("Missing or invalid 'active' field.");
   }
 
-  const result = await withDb(() =>
-    SkillModel.findByIdAndUpdate(id, { active: body.active }),
+  const result = await withDb(async () =>
+    (await SkillModel.findByIdAndUpdate(id, { active: body.active })) ?? NOT_FOUND,
   );
 
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/about"]);
   return success();

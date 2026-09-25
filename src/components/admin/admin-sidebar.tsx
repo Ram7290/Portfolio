@@ -7,7 +7,7 @@ import { PanelLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { MESSAGES_CHANGED_EVENT } from "@/components/admin/messages-manager";
+import { MESSAGE_RECEIVED_EVENT, MESSAGES_CHANGED_EVENT } from "@/lib/admin-events";
 import { messagesApi } from "@/lib/api-client";
 import { AdminNavLinks } from "./admin-nav-links";
 
@@ -27,10 +27,14 @@ export function AdminSidebar({
       if (!cancelled && result.ok) setUnreadCount(result.data?.count ?? 0);
     };
     void load();
+    // Refetch when the admin changes messages here, or when <LiveMessages>
+    // receives a new one pushed from the server.
     window.addEventListener(MESSAGES_CHANGED_EVENT, load);
+    window.addEventListener(MESSAGE_RECEIVED_EVENT, load);
     return () => {
       cancelled = true;
       window.removeEventListener(MESSAGES_CHANGED_EVENT, load);
+      window.removeEventListener(MESSAGE_RECEIVED_EVENT, load);
     };
   }, []);
 

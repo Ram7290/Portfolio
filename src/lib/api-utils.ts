@@ -2,6 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { isValidObjectId } from "mongoose";
 
 import { auth } from "@/lib/auth";
 
@@ -44,6 +45,40 @@ export function badRequest(error: string) {
     { status: 400 },
   );
 }
+
+/**
+ * Return a 404 Not Found response.
+ */
+export function notFound(message = "Not found.") {
+  return NextResponse.json<ApiResponse>(
+    { ok: false, error: message },
+    { status: 404 },
+  );
+}
+
+/**
+ * Return a 409 Conflict response.
+ */
+export function conflict(message: string) {
+  return NextResponse.json<ApiResponse>(
+    { ok: false, error: message },
+    { status: 409 },
+  );
+}
+
+/** True when `id` can be a MongoDB ObjectId (anything else can't match a document). */
+export function isValidId(id: string | undefined): id is string {
+  return Boolean(id) && isValidObjectId(id);
+}
+
+/**
+ * Returned from a `withDb` callback when the target document doesn't exist,
+ * because `withDb` itself returns null for "database unavailable".
+ */
+export const NOT_FOUND = Symbol("not-found");
+
+/** Returned from a `withDb` callback when a project slug is already in use. */
+export const SLUG_TAKEN = Symbol("slug-taken");
 
 /**
  * Return a 500 Internal Server Error response.

@@ -1,7 +1,12 @@
 import { withDb } from "@/lib/mongodb";
 import { ProjectModel } from "@/models";
 import {
+  NOT_FOUND,
+  SLUG_TAKEN,
   badRequest,
+  conflict,
+  isValidId,
+  notFound,
   parseRequestBody,
   requireAdmin,
   revalidatePaths,
@@ -49,7 +54,7 @@ export async function PUT(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
   const body = await parseRequestBody<ProjectInput>(request);
   if (!body) return badRequest("Invalid request body.");
@@ -68,9 +73,9 @@ export async function PUT(
   const result = await withDb(async () => {
     // Check slug uniqueness (excluding this project)
     const clash = await ProjectModel.findOne({ slug, _id: { $ne: id } });
-    if (clash) throw new Error("SLUG_TAKEN");
+    if (clash) return SLUG_TAKEN;
 
-    return await ProjectModel.findByIdAndUpdate(id, {
+    const updated = await ProjectModel.findByIdAndUpdate(id, {
       title,
       slug,
       shortDescription,
@@ -88,10 +93,15 @@ export async function PUT(
       featured: body.featured,
       order: Number.isFinite(body.order) ? body.order : 0,
     });
+    return updated ?? NOT_FOUND;
   });
 
   if (result === null) {
     return serverError("Database is not configured.");
+  }
+  if (result === NOT_FOUND) return notFound();
+  if (result === SLUG_TAKEN) {
+    return conflict(`Another project already uses the slug "${slug}".`);
   }
 
   revalidatePaths(["/", "/projects", `/projects/${slug}`]);
@@ -106,10 +116,11 @@ export async function DELETE(
   if (!(await requireAdmin())) return unauthorized();
 
   const { id } = await params;
-  if (!id) return badRequest("Missing id.");
+  if (!isValidId(id)) return notFound();
 
-  const result = await withDb(() => ProjectModel.findByIdAndDelete(id));
+  const result = await withDb(async () => (await ProjectModel.findByIdAndDelete(id)) ?? NOT_FOUND);
   if (result === null) return serverError("Database is not configured.");
+  if (result === NOT_FOUND) return notFound();
 
   revalidatePaths(["/", "/projects"]);
   return success();
