@@ -81,7 +81,7 @@ export function Hero({
             <div className="relative size-full overflow-hidden rounded-full border border-border/60 bg-card shadow-2xl shadow-primary/10">
               <Image
                 src={profile.imageUrl}
-                alt={`${profile.name} â€” profile photo`}
+                alt={`${profile.name} — profile photo`}
                 fill
                 priority
                 sizes="128px"
@@ -228,10 +228,10 @@ export function Hero({
         </motion.dl>
       </motion.div>
 
-      {/* Scroll hint */}
+      {/* Scroll hint — hidden on short viewports so it can't overlap the meta bar */}
       <motion.div
         {...item(1)}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 [@media(max-height:860px)]:hidden"
         aria-hidden="true"
       >
         <div className="flex h-9 w-5 items-start justify-center rounded-full border border-muted-foreground/30 p-1.5">
