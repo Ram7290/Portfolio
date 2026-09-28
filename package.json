@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "telegram:setup": "node scripts/telegram-setup.mjs"
   },
   "dependencies": {
     "axios": "^1.20.0",

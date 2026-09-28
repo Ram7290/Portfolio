@@ -426,5 +426,27 @@ export const uploadApi = {
   },
 };
 
+/* ------------------------------------------------------------------ */
+/* Owner notifications                                                 */
+/* ------------------------------------------------------------------ */
+
+export type NotificationChannel = "telegram" | "email" | "whatsapp";
+
+export interface NotificationResult {
+  channel: NotificationChannel;
+  status: "sent" | "failed" | "not-configured";
+  error?: string;
+}
+
+export const notificationsApi = {
+  status: async (): Promise<ApiResponse<Record<NotificationChannel, boolean>>> => {
+    return handleResponse(apiClient.get("/notifications"));
+  },
+
+  test: async (): Promise<ApiResponse<NotificationResult[]>> => {
+    return handleResponse(apiClient.post("/notifications"));
+  },
+};
+
 // Export the axios instance for custom requests if needed
 export { apiClient };

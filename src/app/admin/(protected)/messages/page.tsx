@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import { MessagesManager, type MessageRow } from "@/components/admin/messages-manager";
 import { DbBanner } from "@/components/admin/db-banner";
+import { NotificationStatus } from "@/components/admin/notification-status";
 import { PageHeader } from "@/components/admin/page-header";
 import { PageLoading } from "@/components/admin/page-loading";
 import { useApiResource } from "@/hooks/use-api-resource";
@@ -34,6 +35,7 @@ export default function AdminMessagesPage() {
       ) : (
         <>
           <DbBanner configured={dbConfigured} />
+          <NotificationStatus />
           <MessagesManager initial={data} dbConfigured={dbConfigured} onChanged={reload} />
         </>
       )}

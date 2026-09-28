@@ -1,4 +1,7 @@
+import { after } from "next/server";
+
 import { withDb } from "@/lib/mongodb";
+import { notifyNewMessage } from "@/lib/notify";
 import { ContactMessageModel } from "@/models";
 import {
   badRequest,
@@ -109,6 +112,12 @@ export async function POST(request: Request) {
       "The contact form is not available right now. Please reach out via email instead.",
     );
   }
+
+  // Alert the owner (Telegram / email / WhatsApp) once the visitor already
+  // has their response, so a slow provider never delays the form.
+  after(async () => {
+    await notifyNewMessage({ name, email, subject, message });
+  });
 
   return success();
 }
