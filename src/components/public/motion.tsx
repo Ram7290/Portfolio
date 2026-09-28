@@ -264,3 +264,115 @@ export function SectionHeading({
     </Reveal>
   );
 }
+
+/**
+ * Editorial, left-aligned section header: index number + hairline rule,
+ * eyebrow, an oversized title, and an optional action on the right.
+ */
+export function EditorialHeader({
+  number,
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  number: string;
+  eyebrow: string;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <Reveal>
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="grid gap-4 md:grid-cols-[auto_1fr] md:gap-8 lg:gap-10">
+          <div className="flex items-center gap-3 md:pt-2">
+            <span className="font-mono text-sm font-medium text-primary">
+              {number}
+            </span>
+            <span className="h-px w-10 bg-gradient-to-r from-primary/60 to-transparent" />
+          </div>
+          <div>
+            <p className="font-mono text-xs font-medium tracking-[0.25em] text-muted-foreground uppercase">
+              {eyebrow}
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-[2.75rem] lg:leading-[1.05]">
+              {title}
+            </h2>
+            {description ? (
+              <p className="mt-4 max-w-xl text-muted-foreground text-pretty">
+                {description}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+    </Reveal>
+  );
+}
+
+/**
+ * Fixed vertical section index with scroll-spy. Desktop (xl) only.
+ */
+export function SectionIndex({
+  sections,
+}: {
+  sections: { id: string; label: string }[];
+}) {
+  const [active, setActive] = useState(sections[0]?.id ?? "");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    const els = sections
+      .map((s) => document.getElementById(s.id))
+      .filter((el): el is HTMLElement => el !== null);
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [sections]);
+
+  return (
+    <nav
+      aria-label="Section navigation"
+      className="fixed top-1/2 right-6 z-40 hidden -translate-y-1/2 xl:block"
+    >
+      <ul className="flex flex-col items-end gap-3.5">
+        {sections.map((s) => {
+          const isActive = active === s.id;
+          return (
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                className="group flex items-center justify-end gap-2.5"
+              >
+                <span
+                  className={`font-mono text-[10px] tracking-widest uppercase transition-all duration-300 ${
+                    isActive
+                      ? "text-foreground opacity-100"
+                      : "translate-x-1 text-muted-foreground opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
+                  }`}
+                >
+                  {s.label}
+                </span>
+                <span
+                  className={`h-px transition-all duration-300 ${
+                    isActive
+                      ? "w-8 bg-primary"
+                      : "w-4 bg-muted-foreground/40 group-hover:w-6 group-hover:bg-foreground"
+                  }`}
+                />
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}

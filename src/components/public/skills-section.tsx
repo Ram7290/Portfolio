@@ -2,6 +2,7 @@ import { Braces, Database, Server, Wrench } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
+  EditorialHeader,
   Marquee,
   Reveal,
   SectionHeading,
@@ -19,16 +20,39 @@ const CATEGORY_META: Record<
   Tools: { icon: Wrench, blurb: "The daily workflow" },
 };
 
-export function SkillsSection({ skills }: { skills: Skill[] }) {
+export function SkillsSection({
+  skills,
+  number,
+}: {
+  skills: Skill[];
+  number?: string;
+}) {
   const categories = Object.keys(CATEGORY_META) as SkillCategory[];
 
   return (
-    <section id="skills" aria-label="Skills" className="scroll-mt-20">
-      <SectionHeading
-        eyebrow="Skills"
-        title="Technologies I work with"
-        description="A practical toolkit built across the stack — chosen for shipping real products, not résumé padding."
-      />
+    <section
+      id="skills"
+      aria-label="Skills"
+      className={
+        number
+          ? "scroll-mt-24 border-t border-border/50 pt-14 lg:pt-20"
+          : "scroll-mt-20"
+      }
+    >
+      {number ? (
+        <EditorialHeader
+          number={number}
+          eyebrow="Skills"
+          title="Technologies I work with"
+          description="A practical toolkit built across the stack — chosen for shipping real products, not résumé padding."
+        />
+      ) : (
+        <SectionHeading
+          eyebrow="Skills"
+          title="Technologies I work with"
+          description="A practical toolkit built across the stack — chosen for shipping real products, not résumé padding."
+        />
+      )}
 
       <div className="mt-12 grid gap-5 md:grid-cols-2">
         {categories.map((category, ci) => {

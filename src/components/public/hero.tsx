@@ -106,7 +106,7 @@ export function Hero({
 
         <motion.h1
           {...item(0.1)}
-          className="mt-7 text-4xl font-semibold tracking-tight text-balance sm:text-6xl"
+          className="mt-7 text-5xl font-semibold tracking-tight text-balance sm:text-7xl lg:text-8xl lg:leading-[0.95]"
         >
           {profile.name.split(" ").map((word, i, words) => (
             <span key={i}>
@@ -224,6 +224,30 @@ export function Hero({
             </li>
           ) : null}
         </motion.ul>
+
+        {/* Editorial meta bar */}
+        <motion.dl
+          {...item(0.75)}
+          className="mt-12 grid w-full max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/50 bg-border/40 text-left sm:grid-cols-3"
+        >
+          {[
+            { k: "Role", v: profile.role },
+            { k: "Location", v: profile.location || "Remote" },
+            {
+              k: "Status",
+              v: profile.available
+                ? profile.availabilityLabel || "Available"
+                : "Booked",
+            },
+          ].map((meta) => (
+            <div key={meta.k} className="bg-background/60 px-4 py-3 backdrop-blur">
+              <dt className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                {meta.k}
+              </dt>
+              <dd className="mt-1 truncate text-sm font-medium">{meta.v}</dd>
+            </div>
+          ))}
+        </motion.dl>
       </motion.div>
 
       {/* Scroll hint */}

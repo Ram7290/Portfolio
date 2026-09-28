@@ -1,5 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { Reveal, SectionHeading } from "@/components/public/motion";
+import {
+  EditorialHeader,
+  Reveal,
+  SectionHeading,
+} from "@/components/public/motion";
 import type { Experience } from "@/types/portfolio";
 
 function formatMonth(value: string | null): string {
@@ -12,14 +16,37 @@ function formatMonth(value: string | null): string {
   });
 }
 
-export function ExperienceSection({ items }: { items: Experience[] }) {
+export function ExperienceSection({
+  items,
+  number,
+}: {
+  items: Experience[];
+  number?: string;
+}) {
   return (
-    <section id="experience" aria-label="Experience" className="scroll-mt-20">
-      <SectionHeading
-        eyebrow="Experience"
-        title="Where I've worked"
-        description="Roles and responsibilities — placeholder entries are marked and editable from the admin panel."
-      />
+    <section
+      id="experience"
+      aria-label="Experience"
+      className={
+        number
+          ? "scroll-mt-24 border-t border-border/50 pt-14 lg:pt-20"
+          : "scroll-mt-20"
+      }
+    >
+      {number ? (
+        <EditorialHeader
+          number={number}
+          eyebrow="Experience"
+          title="Where I've worked"
+          description="Roles and responsibilities that shaped how I build software."
+        />
+      ) : (
+        <SectionHeading
+          eyebrow="Experience"
+          title="Where I've worked"
+          description="Roles and responsibilities — placeholder entries are marked and editable from the admin panel."
+        />
+      )}
 
       <ol className="relative mt-12 space-y-10 before:absolute before:inset-y-2 before:left-[7px] before:w-px before:bg-border/70">
         {items.map((exp, i) => (
