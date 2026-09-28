@@ -105,7 +105,7 @@ export function ContactForm() {
             id="contact-email"
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="Enter your email address"
             aria-invalid={Boolean(errors.email)}
             {...register("email", {
               required: "Please enter your email.",

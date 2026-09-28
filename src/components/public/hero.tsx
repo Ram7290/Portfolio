@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import {
   LinkedInIcon,
 } from "@/components/public/brand-icons";
 import { fadeUp, Magnetic } from "@/components/public/motion";
+import { TypewriterName } from "@/components/public/typewriter-name";
 import type { Profile, SocialLinkItem } from "@/types/portfolio";
 
 export function Hero({
@@ -43,7 +44,7 @@ export function Hero({
     <section
       id="home"
       aria-label="Introduction"
-      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pt-14 sm:px-6 lg:px-8"
+      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-28 sm:px-6 lg:px-8"
     >
       {/* Background: drifting aurora + fine grid + radial glow + vignette */}
       <div
@@ -80,7 +81,7 @@ export function Hero({
             <div className="relative size-full overflow-hidden rounded-full border border-border/60 bg-card shadow-2xl shadow-primary/10">
               <Image
                 src={profile.imageUrl}
-                alt={`${profile.name} — profile photo`}
+                alt={`${profile.name} â€” profile photo`}
                 fill
                 priority
                 sizes="128px"
@@ -106,32 +107,9 @@ export function Hero({
 
         <motion.h1
           {...item(0.1)}
-          className="mt-7 text-5xl font-semibold tracking-tight text-balance sm:text-7xl lg:text-8xl lg:leading-[0.95]"
+          className="mt-7 min-h-[1.1em] text-5xl font-semibold tracking-tight text-balance sm:text-7xl lg:text-8xl lg:leading-[0.95]"
         >
-          {profile.name.split(" ").map((word, i, words) => (
-            <span key={i}>
-              <motion.span
-                initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: reduceMotion ? 0 : 0.6,
-                  delay: reduceMotion ? 0 : 0.15 + i * 0.09,
-                  ease: [0.21, 0.47, 0.32, 0.98],
-                }}
-                className="inline-block"
-              >
-                {i === words.length - 1 ? (
-                  <span className="text-gradient">{word}</span>
-                ) : (
-                  <>
-                    {word}
-                    {/* space between words */}
-                    {" "}
-                  </>
-                )}
-              </motion.span>
-            </span>
-          ))}
+          <TypewriterName name={profile.name} />
         </motion.h1>
 
         <motion.p
