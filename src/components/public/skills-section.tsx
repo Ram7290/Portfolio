@@ -1,8 +1,12 @@
 import { Braces, Database, Server, Wrench } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Reveal, SectionHeading } from "@/components/public/motion";
+import {
+  Marquee,
+  Reveal,
+  SectionHeading,
+  SpotlightCard,
+} from "@/components/public/motion";
 import type { Skill, SkillCategory } from "@/types/portfolio";
 
 const CATEGORY_META: Record<
@@ -34,10 +38,10 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
 
           return (
             <Reveal key={category} delay={ci * 0.06}>
-              <Card className="group h-full border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30">
-                <CardContent className="p-6">
+              <SpotlightCard className="h-full rounded-xl border border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30">
+                <div className="p-6">
                   <div className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20 transition-transform duration-300 group-hover/spot:scale-110 group-hover/spot:rotate-3">
                       <Icon className="size-4" aria-hidden="true" />
                     </span>
                     <div>
@@ -50,7 +54,7 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
                       <li key={skill.name}>
                         <Badge
                           variant="secondary"
-                          className="px-2.5 py-1 text-xs transition-colors group-hover:border-primary/20 hover:border-primary/40"
+                          className="px-2.5 py-1 text-xs transition-colors group-hover/spot:border-primary/20 hover:border-primary/40"
                           title={skill.proficiency ?? undefined}
                         >
                           {skill.name}
@@ -63,12 +67,25 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-              </Card>
+                </div>
+              </SpotlightCard>
             </Reveal>
           );
         })}
       </div>
+
+      {skills.length > 0 ? (
+        <Reveal delay={0.1} className="mt-8">
+          <Marquee
+            items={skills.map((skill) => (
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur">
+                <span className="size-1.5 rounded-full bg-primary/70" />
+                {skill.name}
+              </span>
+            ))}
+          />
+        </Reveal>
+      ) : null}
     </section>
   );
 }

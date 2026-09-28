@@ -191,3 +191,93 @@
     56px 56px,
     56px 56px;
 }
+
+/* ------------------------------------------------------------------ */
+/* Modern motion utilities                                             */
+/* ------------------------------------------------------------------ */
+
+/* Slow-drifting aurora blobs behind the hero */
+@utility aurora {
+  background:
+    radial-gradient(
+      40% 55% at 20% 30%,
+      color-mix(in oklch, var(--primary) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      35% 50% at 80% 20%,
+      color-mix(in oklch, oklch(0.72 0.13 285) 20%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 50% at 60% 80%,
+      color-mix(in oklch, var(--chart-3) 18%, transparent),
+      transparent 70%
+    );
+  filter: blur(40px);
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+
+/* Cursor-tracked spotlight glow — pairs with the .spotlight-card wrapper.
+   The card sets --mx/--my (px, relative to the card) on pointer move. */
+@utility spotlight-glow {
+  background: radial-gradient(
+    22rem 22rem at var(--mx, 50%) var(--my, 0%),
+    color-mix(in oklch, var(--primary) 16%, transparent),
+    transparent 60%
+  );
+}
+
+/* Animated gradient border via conic-gradient on a masked pseudo layer */
+@utility shimmer-line {
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in oklch, var(--primary) 40%, transparent) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 4%, 0) scale(1.03);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Infinite horizontal marquee track (duplicate content twice inside) */
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora,
+  .marquee-track,
+  .shimmer-line {
+    animation: none !important;
+  }
+}

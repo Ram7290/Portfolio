@@ -4,7 +4,7 @@ import { ArrowUpRight, ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/public/motion";
+import { Reveal, SpotlightCard } from "@/components/public/motion";
 import { GitHubIcon } from "@/components/public/brand-icons";
 import type { Project } from "@/types/portfolio";
 
@@ -41,9 +41,11 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
           const flip = i % 2 === 1;
           return (
             <Reveal key={project.slug} delay={Math.min(i * 0.05, 0.15)}>
-              <article
-                className={`group grid items-center gap-6 rounded-2xl border border-border/60 bg-card/50 p-5 backdrop-blur transition-colors hover:border-primary/30 sm:gap-8 lg:grid-cols-2 lg:p-7 ${
-                  flip ? "lg:[&>*:first-child]:order-2" : ""
+              <SpotlightCard
+                as="article"
+                className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30"
+                contentClassName={`grid items-center gap-6 p-5 sm:gap-8 lg:grid-cols-2 lg:p-7 ${
+                  flip ? "lg:[&>a:first-of-type]:order-2" : ""
                 }`}
               >
                 <Link
@@ -57,7 +59,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                       alt={`${project.title} thumbnail`}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover/spot:scale-105"
                     />
                   ) : (
                     <div
@@ -128,7 +130,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                     ) : null}
                   </div>
                 </div>
-              </article>
+              </SpotlightCard>
             </Reveal>
           );
         })}

@@ -10,7 +10,7 @@ import {
   GitHubIcon,
   LinkedInIcon,
 } from "@/components/public/brand-icons";
-import { fadeUp } from "@/components/public/motion";
+import { fadeUp, Magnetic } from "@/components/public/motion";
 import type { Profile, SocialLinkItem } from "@/types/portfolio";
 
 export function Hero({
@@ -45,7 +45,11 @@ export function Hero({
       aria-label="Introduction"
       className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pt-14 sm:px-6 lg:px-8"
     >
-      {/* Background: fine grid + radial glow + vignette */}
+      {/* Background: drifting aurora + fine grid + radial glow + vignette */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 aurora opacity-70 dark:opacity-60"
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)] opacity-60"
@@ -149,12 +153,17 @@ export function Hero({
           {...item(0.55)}
           className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
         >
-          <Button asChild size="lg" className="px-6">
-            <Link href="/projects">
-              View My Work
-              <ArrowRight data-icon="inline-end" />
-            </Link>
-          </Button>
+          <Magnetic>
+            <Button asChild size="lg" className="group px-6">
+              <Link href="/projects">
+                View My Work
+                <ArrowRight
+                  data-icon="inline-end"
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+            </Button>
+          </Magnetic>
           {resumeUrl ? (
             <Button asChild variant="outline" size="lg" className="px-6">
               <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
