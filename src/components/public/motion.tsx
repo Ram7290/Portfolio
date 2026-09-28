@@ -15,6 +15,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type Ref,
 } from "react";
 
 /**
@@ -85,7 +86,7 @@ export function SpotlightCard({
 }) {
   const ref = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
-  const MotionTag = motion[as];
+  const MotionTag = motion[as] as typeof motion.div;
 
   const onPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
     const el = ref.current;
@@ -97,7 +98,7 @@ export function SpotlightCard({
 
   return (
     <MotionTag
-      ref={ref as React.Ref<HTMLDivElement & HTMLLIElement>}
+      ref={ref as unknown as Ref<HTMLDivElement>}
       onPointerMove={reduceMotion ? undefined : onPointerMove}
       whileHover={reduceMotion ? undefined : { y: -4 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
@@ -130,31 +131,26 @@ export function CountUp({
   const reduceMotion = useReducedMotion();
 
   const match = value.match(/-?[\d.,]+/);
-  const target = match ? parseFloat(match[0].replace(/,/g, "")) : NaN;
+  const numStr = match ? match[0] : "";
+  const target = match ? parseFloat(numStr.replace(/,/g, "")) : NaN;
   const hasNumber = !Number.isNaN(target);
-  const decimals = match && match[0].includes(".")
-    ? match[0].split(".")[1].length
-    : 0;
+  const decimals = numStr.includes(".") ? numStr.split(".")[1].length : 0;
 
   const [display, setDisplay] = useState(
-    hasNumber && !reduceMotion ? value.replace(match![0], "0") : value,
+    hasNumber && !reduceMotion ? value.replace(numStr, "0") : value,
   );
 
   useEffect(() => {
-    if (!inView || !hasNumber || reduceMotion) {
-      setDisplay(value);
-      return;
-    }
+    if (!inView || !hasNumber || reduceMotion) return;
     const controls = animate(0, target, {
       duration,
       ease: [0.21, 0.47, 0.32, 0.98],
       onUpdate: (latest) => {
-        const n = latest.toFixed(decimals);
-        setDisplay(value.replace(match![0], n));
+        setDisplay(value.replace(numStr, latest.toFixed(decimals)));
       },
     });
     return () => controls.stop();
-  }, [inView, hasNumber, reduceMotion, target, value, duration, decimals]);
+  }, [inView, hasNumber, reduceMotion, target, value, duration, decimals, numStr]);
 
   return (
     <span ref={ref} className={className}>

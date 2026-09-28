@@ -78,7 +78,10 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
         <Reveal delay={0.1} className="mt-8">
           <Marquee
             items={skills.map((skill) => (
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur">
+              <span
+                key={skill.name}
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur"
+              >
                 <span className="size-1.5 rounded-full bg-primary/70" />
                 {skill.name}
               </span>
