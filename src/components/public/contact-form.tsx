@@ -85,7 +85,7 @@ export function ContactForm() {
           <Input
             id="contact-name"
             autoComplete="name"
-            placeholder="Your name"
+            placeholder="Enter your name"
             aria-invalid={Boolean(errors.name)}
             {...register("name", {
               required: "Please enter your name.",

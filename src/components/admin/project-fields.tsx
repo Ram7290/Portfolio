@@ -134,7 +134,7 @@ export function ProjectDialogFields({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="prj-title">Title</Label>
-          <Input id="prj-title" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+          <Input id="prj-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. BM Canteen — Management System" autoFocus />
           {errors.title ? <p role="alert" className="text-xs text-destructive">{errors.title}</p> : null}
         </div>
         <div className="space-y-2">
@@ -172,6 +172,7 @@ export function ProjectDialogFields({
           rows={2}
           value={shortDescription}
           onChange={(e) => setShortDescription(e.target.value)}
+          placeholder="One or two sentences shown on cards and previews"
         />
         {errors.shortDescription ? (
           <p role="alert" className="text-xs text-destructive">{errors.shortDescription}</p>
@@ -180,33 +181,33 @@ export function ProjectDialogFields({
 
       <div className="space-y-2">
         <Label htmlFor="prj-desc">Detailed description</Label>
-        <Textarea id="prj-desc" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Textarea id="prj-desc" rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Full overview of the project — what it does and how it works" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="prj-problem">Problem</Label>
-          <Textarea id="prj-problem" rows={3} value={problem} onChange={(e) => setProblem(e.target.value)} />
+          <Textarea id="prj-problem" rows={3} value={problem} onChange={(e) => setProblem(e.target.value)} placeholder="What problem did this project solve?" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="prj-solution">Solution</Label>
-          <Textarea id="prj-solution" rows={3} value={solution} onChange={(e) => setSolution(e.target.value)} />
+          <Textarea id="prj-solution" rows={3} value={solution} onChange={(e) => setSolution(e.target.value)} placeholder="How did you solve it?" />
         </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="prj-features">Features (one per line)</Label>
-        <Textarea id="prj-features" rows={3} value={features} onChange={(e) => setFeatures(e.target.value)} />
+        <Textarea id="prj-features" rows={3} value={features} onChange={(e) => setFeatures(e.target.value)} placeholder={"One feature per line, e.g.\nRole-based access control\nReal-time order tracking"} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="prj-challenges">Challenges</Label>
-          <Textarea id="prj-challenges" rows={2} value={challenges} onChange={(e) => setChallenges(e.target.value)} />
+          <Textarea id="prj-challenges" rows={2} value={challenges} onChange={(e) => setChallenges(e.target.value)} placeholder="Any tricky problems you had to work through" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="prj-results">Results (only if real)</Label>
-          <Textarea id="prj-results" rows={2} value={results} onChange={(e) => setResults(e.target.value)} />
+          <Textarea id="prj-results" rows={2} value={results} onChange={(e) => setResults(e.target.value)} placeholder="Measurable outcomes, e.g. 500+ active users" />
         </div>
       </div>
 

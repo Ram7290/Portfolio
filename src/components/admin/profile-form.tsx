@@ -104,6 +104,7 @@ export function ProfileForm({
               id="p-name"
               value={values.name}
               onChange={(e) => set("name", e.target.value)}
+              placeholder="Enter your full name"
               required
             />
           </div>
@@ -113,6 +114,7 @@ export function ProfileForm({
               id="p-role"
               value={values.role}
               onChange={(e) => set("role", e.target.value)}
+              placeholder="e.g. Full Stack Developer"
               required
             />
           </div>
@@ -123,6 +125,7 @@ export function ProfileForm({
               rows={2}
               value={values.tagline}
               onChange={(e) => set("tagline", e.target.value)}
+              placeholder="A short line that sums you up, e.g. Building modern, scalable web apps"
               required
             />
           </div>
@@ -133,6 +136,7 @@ export function ProfileForm({
               rows={7}
               value={values.bio}
               onChange={(e) => set("bio", e.target.value)}
+              placeholder="Write a few paragraphs about yourself. Leave a blank line to start a new paragraph."
             />
           </div>
           <div className="space-y-2">
@@ -141,6 +145,7 @@ export function ProfileForm({
               id="p-location"
               value={values.location}
               onChange={(e) => set("location", e.target.value)}
+              placeholder="e.g. Kollam, India (Remote)"
             />
           </div>
           <div className="space-y-2">
@@ -150,6 +155,7 @@ export function ProfileForm({
               type="email"
               value={values.email}
               onChange={(e) => set("email", e.target.value)}
+              placeholder="you@example.com"
             />
           </div>
         </CardContent>
@@ -194,6 +200,7 @@ export function ProfileForm({
               id="p-avail-label"
               value={values.availabilityLabel}
               onChange={(e) => set("availabilityLabel", e.target.value)}
+              placeholder="e.g. Open to Opportunities"
             />
           </div>
         </CardContent>

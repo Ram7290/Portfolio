@@ -86,6 +86,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
               rows={2}
               value={values.metaDescription}
               onChange={(e) => set("metaDescription", e.target.value)}
+              placeholder="Shown in search results and social previews (around 150–160 characters)"
             />
           </div>
           <div className="space-y-2">
@@ -114,6 +115,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
               id="s-hero-h"
               value={values.heroHeading}
               onChange={(e) => set("heroHeading", e.target.value)}
+              placeholder="Leave blank to use your profile name"
             />
           </div>
           <div className="space-y-2">
@@ -122,6 +124,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
               id="s-hero-s"
               value={values.heroSubheading}
               onChange={(e) => set("heroSubheading", e.target.value)}
+              placeholder="Leave blank to use your profile tagline"
             />
           </div>
         </CardContent>
@@ -141,6 +144,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
               id="s-footer"
               value={values.footerText}
               onChange={(e) => set("footerText", e.target.value)}
+              placeholder="e.g. Built with Next.js — thanks for visiting"
             />
           </div>
         </CardContent>
