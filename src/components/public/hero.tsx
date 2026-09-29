@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +10,8 @@ import {
   GitHubIcon,
   LinkedInIcon,
 } from "@/components/public/brand-icons";
-import { fadeUp } from "@/components/public/motion";
+import { fadeUp, Magnetic } from "@/components/public/motion";
+import { TypewriterName } from "@/components/public/typewriter-name";
 import type { Profile, SocialLinkItem } from "@/types/portfolio";
 
 export function Hero({
@@ -43,9 +44,13 @@ export function Hero({
     <section
       id="home"
       aria-label="Introduction"
-      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pt-14 sm:px-6 lg:px-8"
+      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-28 sm:px-6 lg:px-8"
     >
-      {/* Background: fine grid + radial glow + vignette */}
+      {/* Background: drifting aurora + fine grid + radial glow + vignette */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 aurora opacity-70 dark:opacity-60"
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)] opacity-60"
@@ -102,32 +107,9 @@ export function Hero({
 
         <motion.h1
           {...item(0.1)}
-          className="mt-7 text-4xl font-semibold tracking-tight text-balance sm:text-6xl"
+          className="mt-7 min-h-[1.1em] text-5xl font-semibold tracking-tight text-balance sm:text-7xl lg:text-8xl lg:leading-[0.95]"
         >
-          {profile.name.split(" ").map((word, i, words) => (
-            <span key={i}>
-              <motion.span
-                initial={reduceMotion ? false : { opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: reduceMotion ? 0 : 0.6,
-                  delay: reduceMotion ? 0 : 0.15 + i * 0.09,
-                  ease: [0.21, 0.47, 0.32, 0.98],
-                }}
-                className="inline-block"
-              >
-                {i === words.length - 1 ? (
-                  <span className="text-gradient">{word}</span>
-                ) : (
-                  <>
-                    {word}
-                    {/* space between words */}
-                    {" "}
-                  </>
-                )}
-              </motion.span>
-            </span>
-          ))}
+          <TypewriterName name={profile.name} />
         </motion.h1>
 
         <motion.p
@@ -149,12 +131,17 @@ export function Hero({
           {...item(0.55)}
           className="mt-9 flex flex-col items-center gap-3 sm:flex-row"
         >
-          <Button asChild size="lg" className="px-6">
-            <Link href="/projects">
-              View My Work
-              <ArrowRight data-icon="inline-end" />
-            </Link>
-          </Button>
+          <Magnetic>
+            <Button asChild size="lg" className="group px-6">
+              <Link href="/projects">
+                View My Work
+                <ArrowRight
+                  data-icon="inline-end"
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+            </Button>
+          </Magnetic>
           {resumeUrl ? (
             <Button asChild variant="outline" size="lg" className="px-6">
               <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
@@ -215,12 +202,36 @@ export function Hero({
             </li>
           ) : null}
         </motion.ul>
+
+        {/* Editorial meta bar */}
+        <motion.dl
+          {...item(0.75)}
+          className="mt-12 grid w-full max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/50 bg-border/40 text-left sm:grid-cols-3"
+        >
+          {[
+            { k: "Role", v: profile.role },
+            { k: "Location", v: profile.location || "Remote" },
+            {
+              k: "Status",
+              v: profile.available
+                ? profile.availabilityLabel || "Available"
+                : "Booked",
+            },
+          ].map((meta) => (
+            <div key={meta.k} className="bg-background/60 px-4 py-3 backdrop-blur">
+              <dt className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                {meta.k}
+              </dt>
+              <dd className="mt-1 truncate text-sm font-medium">{meta.v}</dd>
+            </div>
+          ))}
+        </motion.dl>
       </motion.div>
 
-      {/* Scroll hint */}
+      {/* Scroll hint — hidden on short viewports so it can't overlap the meta bar */}
       <motion.div
         {...item(1)}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 [@media(max-height:860px)]:hidden"
         aria-hidden="true"
       >
         <div className="flex h-9 w-5 items-start justify-center rounded-full border border-muted-foreground/30 p-1.5">

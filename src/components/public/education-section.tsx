@@ -1,19 +1,50 @@
 import { GraduationCap } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Reveal, SectionHeading } from "@/components/public/motion";
+import {
+  EditorialHeader,
+  Reveal,
+  SectionHeading,
+} from "@/components/public/motion";
 import type { Education } from "@/types/portfolio";
 
-export function EducationSection({ items }: { items: Education[] }) {
+export function EducationSection({
+  items,
+  number,
+}: {
+  items: Education[];
+  number?: string;
+}) {
   return (
-    <section id="education" aria-label="Education" className="scroll-mt-20">
-      <SectionHeading
-        eyebrow="Education"
-        title="Academic background"
-        description="Degrees and studies — placeholder entries are marked and editable from the admin panel."
-      />
+    <section
+      id="education"
+      aria-label="Education"
+      className={
+        number
+          ? "scroll-mt-24 border-t border-border/50 pt-14 lg:pt-20"
+          : "scroll-mt-20"
+      }
+    >
+      {number ? (
+        <EditorialHeader
+          number={number}
+          eyebrow="Education"
+          title="Academic background"
+          description="Where the foundations were built."
+        />
+      ) : (
+        <SectionHeading
+          eyebrow="Education"
+          title="Academic background"
+          description="Degrees and studies — placeholder entries are marked and editable from the admin panel."
+        />
+      )}
 
-      <div className="mx-auto mt-12 grid max-w-3xl gap-4">
+      <div
+        className={
+          number ? "mt-10 grid max-w-3xl gap-4 lg:mt-14" : "mx-auto mt-12 grid max-w-3xl gap-4"
+        }
+      >
         {items.map((edu, i) => (
           <Reveal key={i} delay={Math.min(i * 0.06, 0.2)}>
             <Card className="border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30">

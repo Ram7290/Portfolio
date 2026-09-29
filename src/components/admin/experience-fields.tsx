@@ -102,12 +102,12 @@ export function ExperienceDialogFields({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="exp-role">Job title</Label>
-          <Input id="exp-role" value={role} onChange={(e) => setRole(e.target.value)} autoFocus />
+          <Input id="exp-role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Full Stack Developer" autoFocus />
           {errors.role ? <p role="alert" className="text-xs text-destructive">{errors.role}</p> : null}
         </div>
         <div className="space-y-2">
           <Label htmlFor="exp-company">Company</Label>
-          <Input id="exp-company" value={company} onChange={(e) => setCompany(e.target.value)} />
+          <Input id="exp-company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="e.g. Acme Inc." />
           {errors.company ? <p role="alert" className="text-xs text-destructive">{errors.company}</p> : null}
         </div>
       </div>
@@ -138,7 +138,7 @@ export function ExperienceDialogFields({
         </div>
         <div className="space-y-2">
           <Label htmlFor="exp-location">Location</Label>
-          <Input id="exp-location" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <Input id="exp-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Remote or Kollam, India" />
         </div>
       </div>
 
@@ -149,11 +149,11 @@ export function ExperienceDialogFields({
 
       <div className="space-y-2">
         <Label htmlFor="exp-desc">Description</Label>
-        <Textarea id="exp-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Textarea id="exp-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="A short summary of the role and what the team did" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="exp-resp">Responsibilities (one per line)</Label>
-        <Textarea id="exp-resp" rows={3} value={responsibilities} onChange={(e) => setResponsibilities(e.target.value)} />
+        <Textarea id="exp-resp" rows={3} value={responsibilities} onChange={(e) => setResponsibilities(e.target.value)} placeholder={"One responsibility per line, e.g.\nBuilt REST APIs with Node.js\nLed the frontend rebuild in Next.js"} />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -162,7 +162,7 @@ export function ExperienceDialogFields({
         </div>
         <div className="space-y-2">
           <Label htmlFor="exp-ach">Achievements (one per line)</Label>
-          <Textarea id="exp-ach" rows={2} value={achievements} onChange={(e) => setAchievements(e.target.value)} />
+          <Textarea id="exp-ach" rows={2} value={achievements} onChange={(e) => setAchievements(e.target.value)} placeholder={"One achievement per line, e.g.\nCut page load time by 40%"} />
         </div>
       </div>
 

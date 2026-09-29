@@ -2,8 +2,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Reveal } from "@/components/public/motion";
+import { CountUp, Reveal, SpotlightCard } from "@/components/public/motion";
 import type { Profile } from "@/types/portfolio";
 
 export function AboutSection({ profile }: { profile: Profile }) {
@@ -46,19 +45,19 @@ export function AboutSection({ profile }: { profile: Profile }) {
           ) : null}
           <div className="grid grid-cols-2 gap-3">
             {profile.stats.map((stat) => (
-              <Card
+              <SpotlightCard
                 key={stat.label}
-                className="border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30"
+                className="rounded-xl border border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30"
               >
-                <CardContent className="p-5 text-center">
+                <div className="p-5 text-center">
                   <p className="text-3xl font-semibold tracking-tight text-gradient">
-                    {stat.value}
+                    <CountUp value={stat.value} />
                   </p>
                   <p className="mt-1.5 text-xs leading-snug text-muted-foreground">
                     {stat.label}
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </SpotlightCard>
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">

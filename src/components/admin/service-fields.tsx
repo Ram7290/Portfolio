@@ -68,12 +68,12 @@ export function ServiceDialogFields({
     <form onSubmit={submit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="svc-title">Title</Label>
-        <Input id="svc-title" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+        <Input id="svc-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Web App Development" autoFocus />
         {error ? <p role="alert" className="text-xs text-destructive">{error}</p> : null}
       </div>
       <div className="space-y-2">
         <Label htmlFor="svc-desc">Description</Label>
-        <Textarea id="svc-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Textarea id="svc-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what this service includes for the client" />
       </div>
       <div className="grid grid-cols-2 items-end gap-4">
         <div className="space-y-2">

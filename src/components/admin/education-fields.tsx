@@ -89,7 +89,7 @@ export function EducationDialogFields({
       </div>
       <div className="space-y-2">
         <Label htmlFor="edu-inst">Institution</Label>
-        <Input id="edu-inst" value={institution} onChange={(e) => setInstitution(e.target.value)} />
+        <Input id="edu-inst" value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="e.g. University of Kerala" />
         {errors.institution ? <p role="alert" className="text-xs text-destructive">{errors.institution}</p> : null}
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -106,7 +106,7 @@ export function EducationDialogFields({
       </div>
       <div className="space-y-2">
         <Label htmlFor="edu-desc">Description (optional)</Label>
-        <Textarea id="edu-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Textarea id="edu-desc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional — notable coursework, achievements, or focus areas" />
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>

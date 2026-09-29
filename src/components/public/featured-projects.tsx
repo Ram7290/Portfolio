@@ -4,46 +4,57 @@ import { ArrowUpRight, ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/public/motion";
+import {
+  EditorialHeader,
+  Reveal,
+  SpotlightCard,
+} from "@/components/public/motion";
 import { GitHubIcon } from "@/components/public/brand-icons";
 import type { Project } from "@/types/portfolio";
 
-export function FeaturedProjects({ projects }: { projects: Project[] }) {
+export function FeaturedProjects({
+  projects,
+  number,
+}: {
+  projects: Project[];
+  number?: string;
+}) {
   if (projects.length === 0) return null;
 
   return (
     <section
       id="featured"
       aria-label="Featured projects"
-      className="scroll-mt-20"
+      className={
+        number
+          ? "scroll-mt-24 border-t border-border/50 pt-14 lg:pt-20"
+          : "scroll-mt-20"
+      }
     >
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <Reveal>
-          <p className="font-mono text-xs font-medium tracking-[0.2em] text-primary uppercase">
-            Featured
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Project highlights
-          </h2>
-        </Reveal>
-        <Reveal delay={0.1}>
+      <EditorialHeader
+        number={number ?? "—"}
+        eyebrow="Selected Work"
+        title="Things I've built"
+        action={
           <Button asChild variant="ghost" size="sm">
             <Link href="/projects">
               All projects
               <ArrowUpRight data-icon="inline-end" />
             </Link>
           </Button>
-        </Reveal>
-      </div>
+        }
+      />
 
-      <div className="mt-10 space-y-10">
+      <div className="mt-10 space-y-8 lg:mt-14">
         {projects.map((project, i) => {
           const flip = i % 2 === 1;
           return (
             <Reveal key={project.slug} delay={Math.min(i * 0.05, 0.15)}>
-              <article
-                className={`group grid items-center gap-6 rounded-2xl border border-border/60 bg-card/50 p-5 backdrop-blur transition-colors hover:border-primary/30 sm:gap-8 lg:grid-cols-2 lg:p-7 ${
-                  flip ? "lg:[&>*:first-child]:order-2" : ""
+              <SpotlightCard
+                as="article"
+                className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur transition-colors hover:border-primary/30"
+                contentClassName={`grid items-center gap-6 p-5 sm:gap-8 lg:grid-cols-2 lg:p-7 ${
+                  flip ? "lg:[&>a:first-of-type]:order-2" : ""
                 }`}
               >
                 <Link
@@ -57,7 +68,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                       alt={`${project.title} thumbnail`}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover/spot:scale-105"
                     />
                   ) : (
                     <div
@@ -72,9 +83,13 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                 </Link>
 
                 <div>
-                  <Badge variant="secondary" className="mb-3">
-                    {project.category}
-                  </Badge>
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="h-px w-6 bg-border" />
+                    <Badge variant="secondary">{project.category}</Badge>
+                  </div>
                   <h3 className="text-2xl font-semibold tracking-tight text-balance">
                     <Link
                       href={`/projects/${project.slug}`}
@@ -128,7 +143,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                     ) : null}
                   </div>
                 </div>
-              </article>
+              </SpotlightCard>
             </Reveal>
           );
         })}
