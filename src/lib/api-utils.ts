@@ -1,10 +1,13 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { isValidObjectId } from "mongoose";
 
-import { auth } from "@/lib/auth";
+import { auth, type AdminIdentity } from "@/lib/auth";
+import { verifyApiToken } from "@/lib/api-token";
+import { connectToDatabase, isDbConfigured } from "@/lib/mongodb";
 
 /**
  * Shared utilities for API route handlers.
@@ -18,12 +21,56 @@ export type ApiResponse<T = undefined> =
   | { ok: false; error: string };
 
 /**
- * Check if the current session has admin access.
+ * The signed-in admin, from either:
+ * - `Authorization: Bearer <token>` — the mobile app (see api-token.ts), or
+ * - the Auth.js session cookie — the web admin.
+ * A request that sends an Authorization header is judged on it alone.
+ */
+export async function getAdmin(): Promise<AdminIdentity | null> {
+  const authorization = (await headers()).get("authorization");
+  if (authorization !== null) {
+    const [scheme, token] = authorization.trim().split(/\s+/);
+    return scheme?.toLowerCase() === "bearer" && token
+      ? verifyApiToken(token)
+      : null;
+  }
+
+  const session = await auth();
+  if (!session?.user) return null;
+  return {
+    id: session.user.id ?? "",
+    name: session.user.name ?? "",
+    email: session.user.email ?? "",
+  };
+}
+
+/**
+ * Check if the request comes from a signed-in admin (app token or web session).
  * Returns true if authenticated, false otherwise.
  */
 export async function requireAdmin(): Promise<boolean> {
-  const session = await auth();
-  return Boolean(session?.user);
+  return (await getAdmin()) !== null;
+}
+
+/**
+ * Why sign-in can't work right now, or null when it can — so configuration
+ * problems are reported honestly instead of blaming the credentials.
+ */
+export async function loginConfigError(): Promise<string | null> {
+  if (!isDbConfigured()) {
+    return "Server is not configured: MONGODB_URI is missing. Add it to this deployment's environment variables and redeploy.";
+  }
+
+  // A sign-in attempt deserves a real connection attempt, not a cached failure
+  if (!(await connectToDatabase({ bypassCooldown: true }))) {
+    return "Cannot reach the database. Check that MONGODB_URI is correct and that MongoDB Atlas → Network Access allows this server (0.0.0.0/0 for serverless hosts).";
+  }
+
+  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) {
+    return "Server is not configured: AUTH_SECRET is missing. Add it to this deployment's environment variables and redeploy.";
+  }
+
+  return null;
 }
 
 /**

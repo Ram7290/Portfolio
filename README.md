@@ -35,7 +35,7 @@ src/
 │   ├── admin/
 │   │   ├── login/           # /admin/login
 │   │   └── (protected)/     # Session-gated admin pages + sidebar layout
-│   ├── api/auth/[...nextauth]/
+│   ├── api/                 # REST API (admin + /api/public), see "REST API" below
 │   ├── layout.tsx           # Root layout, fonts, metadata, providers
 │   ├── sitemap.ts / robots.ts
 │   └── globals.css          # Design tokens (dark-first) + utilities
@@ -43,9 +43,8 @@ src/
 │   ├── ui/                  # shadcn/ui primitives
 │   ├── public/              # Public site components
 │   └── admin/               # Admin tables, dialogs, forms
-├── actions/                 # Server actions (all CRUD + contact + uploads)
 ├── models/                  # Mongoose models
-├── lib/                     # db, auth, content, cloudinary, settings
+├── lib/                     # db, auth, API helpers + clients, cloudinary, notify
 ├── types/                   # Shared content types
 └── proxy.ts                 # Edge guard for /admin (Next 16 middleware)
 ```
@@ -110,6 +109,53 @@ Never commit real credentials. `.gitignore` already excludes `.env*` files.
   from those env vars (and never committed anywhere).
 - All admin routes are protected twice: an edge proxy check plus a server-side
   `auth()` gate in the admin layout.
+
+## REST API
+
+The site, the web admin and the mobile admin app all go through `src/app/api`:
+
+- `/api/public/*` — read-only content for the public site, no sign-in.
+- Everything else under `/api` is admin-only, except `POST /api/messages`
+  (the public contact form) and the sign-in routes.
+
+Every response is JSON in one shape, with a matching HTTP status:
+
+```json
+{ "ok": true, "data": { } }
+{ "ok": false, "error": "Project title is required." }
+```
+
+`400` invalid input · `401` not signed in or bad token · `404` not found ·
+`409` slug already taken · `500` server or configuration problem.
+
+### Signing in
+
+| Client     | How                                                                                                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web admin  | `POST /api/auth/login` sets the Auth.js session cookie; `POST /api/auth/logout` clears it.                                                                              |
+| Mobile app | `POST /api/auth/token` with `{ "email", "password" }` returns `{ token, expiresAt, admin }`. Send `Authorization: Bearer <token>` with every admin request. |
+
+- Tokens last 30 days, like a web session. The app signs out by deleting its
+  stored token.
+- `GET /api/auth/me` returns the signed-in admin — the app calls it on launch
+  and shows the login screen on `401`.
+- Tokens are signed with a key derived from `AUTH_SECRET` (no extra env vars).
+  Changing `AUTH_SECRET` signs out every app and browser at once.
+
+### Admin endpoints
+
+| Resource                                         | Endpoints                                                                                                   |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `projects`, `experience`, `education`, `services`, `skills` | `GET`/`POST /api/<resource>` · `PUT`/`DELETE /api/<resource>/[id]` · `POST /api/<resource>/reorder` with `{ "ids": [...] }` |
+| Social links                                     | Same pattern under `/api/settings/social-links`                                                             |
+| Skills (extra)                                   | `PATCH /api/skills/[id]` with `{ "active": true }`                                                          |
+| Profile                                          | `GET`/`PUT /api/profile`                                                                                    |
+| Site settings, résumé                            | `GET`/`PUT /api/settings/site`, `GET`/`PUT /api/settings/resume`                                            |
+| Messages                                         | `GET /api/messages` · `PATCH /api/messages/[id]` with `{ "read": true }` · `DELETE /api/messages/[id]` · `GET /api/messages/unread-count` · `GET /api/messages/stream` (live feed for the web admin) |
+| Images                                           | `POST /api/upload` (multipart: `file`, `folder` = `profile` or `projects`) · `DELETE /api/upload` with `{ "publicId" }` |
+| Alerts                                           | `GET /api/notifications` (configured channels) · `POST /api/notifications` (send a test alert)             |
+
+Request bodies match the input types exported from each `route.ts`.
 
 ## Deployment (Vercel free tier)
 

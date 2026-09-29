@@ -1,8 +1,8 @@
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
-import { connectToDatabase, isDbConfigured } from "@/lib/mongodb";
 import {
   badRequest,
+  loginConfigError,
   parseRequestBody,
   serverError,
   success,
@@ -25,25 +25,8 @@ export async function POST(request: Request) {
     return badRequest("Email and password are required.");
   }
 
-  // Report configuration problems honestly
-  if (!isDbConfigured()) {
-    return serverError(
-      "Server is not configured: MONGODB_URI is missing. Add it to this deployment's environment variables and redeploy.",
-    );
-  }
-
-  // A sign-in attempt deserves a real connection attempt, not a cached failure
-  if (!(await connectToDatabase({ bypassCooldown: true }))) {
-    return serverError(
-      "Cannot reach the database. Check that MONGODB_URI is correct and that MongoDB Atlas → Network Access allows this server (0.0.0.0/0 for serverless hosts).",
-    );
-  }
-
-  if (process.env.NODE_ENV === "production" && !process.env.AUTH_SECRET) {
-    return serverError(
-      "Server is not configured: AUTH_SECRET is missing. Add it to this deployment's environment variables and redeploy.",
-    );
-  }
+  const configError = await loginConfigError();
+  if (configError) return serverError(configError);
 
   try {
     await signIn("credentials", { email, password, redirect: false });
